@@ -21,6 +21,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
       <Sidebar
         isOpenMobile={mobileSidebarOpen}
         onCloseMobile={() => setMobileSidebarOpen(false)}
+        onOpenAddModal={onOpenAddModal}
       />
 
       {/* 2. Main Application Area (Header + Content) */}

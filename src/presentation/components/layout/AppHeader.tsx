@@ -88,7 +88,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         {onOpenAddModal && (
           <button
             onClick={onOpenAddModal}
-            className="flex items-center gap-2 bg-[#004ac6] hover:bg-[#2563eb] text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-sm hover:shadow-md shadow-[#004ac6]/20"
+            className="hidden sm:flex items-center gap-2 bg-[#004ac6] hover:bg-[#2563eb] text-white px-3.5 py-2 rounded-xl text-xs font-bold transition-all shadow-sm hover:shadow-md shadow-[#004ac6]/20"
           >
             <PlusCircle className="h-4 w-4" />
             <span className="hidden sm:inline">Catat Transaksi</span>

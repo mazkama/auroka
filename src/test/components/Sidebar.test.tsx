@@ -32,8 +32,9 @@ describe('Sidebar Component', () => {
     expect(handleClose).toHaveBeenCalledTimes(1);
   });
 
-  it('renders mobile bottom navigation bar with shortened labels', () => {
-    render(<Sidebar />);
+  it('renders mobile bottom navigation bar with 5 items including center floating add button', () => {
+    const handleOpenAdd = vi.fn();
+    render(<Sidebar onOpenAddModal={handleOpenAdd} />);
 
     const bottomNav = screen.getByRole('navigation', { name: 'Mobile Bottom Navigation' });
     expect(bottomNav).toBeInTheDocument();
@@ -42,5 +43,11 @@ describe('Sidebar Component', () => {
     expect(screen.getByText('Transaksi')).toBeInTheDocument();
     expect(screen.getByText('Dompet')).toBeInTheDocument();
     expect(screen.getByText('Analisis')).toBeInTheDocument();
+
+    // Check floating add button triggers onOpenAddModal
+    const addBtn = screen.getByLabelText('Tambah Transaksi Baru');
+    expect(addBtn).toBeInTheDocument();
+    fireEvent.click(addBtn);
+    expect(handleOpenAdd).toHaveBeenCalledTimes(1);
   });
 });

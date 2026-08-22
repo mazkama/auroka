@@ -16,16 +16,19 @@ import {
   ShieldCheck,
   LogOut,
   User,
+  Plus,
 } from 'lucide-react';
 
 interface SidebarProps {
   isOpenMobile?: boolean;
   onCloseMobile?: () => void;
+  onOpenAddModal?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   isOpenMobile = false,
   onCloseMobile,
+  onOpenAddModal,
 }) => {
   const pathname = usePathname();
 
@@ -180,41 +183,89 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       )}
 
-      {/* 3. Mobile Bottom Navigation Bar (<1024px / lg) */}
+      {/* 3. Mobile Bottom Navigation Bar (<1024px / lg) - 5 Items with Center Floating Action Button */}
       <nav
         aria-label="Mobile Bottom Navigation"
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#e2e8f0] px-2 py-1.5 flex items-center justify-around shadow-lg shadow-black/5"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#e2e8f0] px-2 py-1 flex items-center justify-between shadow-lg shadow-black/5"
       >
-        {navItems.map((item) => {
-          const isActive = pathname === item.href;
-          const shortName =
-            item.name === 'Histori Transaksi'
-              ? 'Transaksi'
-              : item.name === 'Dompet & Anggaran'
-              ? 'Dompet'
-              : item.name === 'Analisis & Laporan'
-              ? 'Analisis'
-              : item.name;
+        {/* Item 1: Dashboard */}
+        <Link
+          href="/dashboard"
+          className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-[10px] font-medium transition-all ${
+            pathname === '/dashboard'
+              ? 'text-[#004ac6] font-bold'
+              : 'text-[#64748b] hover:text-[#004ac6]'
+          }`}
+        >
+          <LayoutDashboard
+            className={`h-5 w-5 transition-transform ${
+              pathname === '/dashboard' ? 'text-[#004ac6] scale-110' : 'text-[#64748b]'
+            }`}
+          />
+          <span>Dashboard</span>
+        </Link>
 
-          return (
-            <Link
-              key={`bottom-${item.href}`}
-              href={item.href}
-              className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-xl transition-all ${
-                isActive
-                  ? 'text-[#004ac6] font-bold bg-[#eff4ff]'
-                  : 'text-[#64748b] hover:text-[#004ac6] font-medium'
-              }`}
-            >
-              <item.icon
-                className={`h-5 w-5 transition-transform ${
-                  isActive ? 'text-[#004ac6] scale-110' : 'text-[#64748b]'
-                }`}
-              />
-              <span className="text-[10px] tracking-tight">{shortName}</span>
-            </Link>
-          );
-        })}
+        {/* Item 2: Transaksi */}
+        <Link
+          href="/transactions"
+          className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-[10px] font-medium transition-all ${
+            pathname === '/transactions'
+              ? 'text-[#004ac6] font-bold'
+              : 'text-[#64748b] hover:text-[#004ac6]'
+          }`}
+        >
+          <Receipt
+            className={`h-5 w-5 transition-transform ${
+              pathname === '/transactions' ? 'text-[#004ac6] scale-110' : 'text-[#64748b]'
+            }`}
+          />
+          <span>Transaksi</span>
+        </Link>
+
+        {/* Item 3 (CENTER FAB): Floating Action Button */}
+        <div className="flex-1 flex items-center justify-center relative -translate-y-5">
+          <button
+            onClick={onOpenAddModal}
+            aria-label="Tambah Transaksi Baru"
+            className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#004ac6] via-[#2563eb] to-[#3b82f6] text-white shadow-xl shadow-[#004ac6]/30 border-4 border-white flex items-center justify-center active:scale-90 transition-transform"
+          >
+            <Plus className="h-6 w-6 stroke-[2.5]" />
+          </button>
+        </div>
+
+        {/* Item 4: Dompet */}
+        <Link
+          href="/wallets"
+          className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-[10px] font-medium transition-all ${
+            pathname === '/wallets'
+              ? 'text-[#004ac6] font-bold'
+              : 'text-[#64748b] hover:text-[#004ac6]'
+          }`}
+        >
+          <Wallet
+            className={`h-5 w-5 transition-transform ${
+              pathname === '/wallets' ? 'text-[#004ac6] scale-110' : 'text-[#64748b]'
+            }`}
+          />
+          <span>Dompet</span>
+        </Link>
+
+        {/* Item 5: Analisis */}
+        <Link
+          href="/analytics"
+          className={`flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-[10px] font-medium transition-all ${
+            pathname === '/analytics'
+              ? 'text-[#004ac6] font-bold'
+              : 'text-[#64748b] hover:text-[#004ac6]'
+          }`}
+        >
+          <BarChart3
+            className={`h-5 w-5 transition-transform ${
+              pathname === '/analytics' ? 'text-[#004ac6] scale-110' : 'text-[#64748b]'
+            }`}
+          />
+          <span>Analisis</span>
+        </Link>
       </nav>
     </>
   );

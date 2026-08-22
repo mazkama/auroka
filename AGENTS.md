@@ -41,9 +41,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - `WalletCards.tsx`: Displays Edit ✏️ and Delete 🗑️ action buttons on card hover.
 
 ### 4. Mobile Bottom Navigation (`Sidebar.tsx` & `AppLayout.tsx`)
-- **Bottom Nav Bar**: Added a fixed mobile bottom navigation bar (`lg:hidden fixed bottom-0`) with `#004ac6` active pill styles, smooth icon scaling, and clear labels (`Dashboard`, `Transaksi`, `Dompet`, `Analisis`).
+- **5-Item Bottom Nav Bar**: Fixed mobile bottom navigation bar (`lg:hidden fixed bottom-0`) with 5 menu slots including a prominent center **Floating Action Button (+)** (`Plus` icon with gradient `from-[#004ac6] to-[#2563eb]`, white ring, and elevated floating placement) triggering `onOpenAddModal`.
 - **Layout Spacing**: Updated `AppLayout` with `pb-20` on mobile view so content is never overlapped.
-- **Unit Testing**: Added dedicated test cases in `Sidebar.test.tsx` verifying mobile bottom navigation rendering and shortened labels.
+- **Unit Testing**: Updated `Sidebar.test.tsx` verifying the 5-item mobile bottom navigation bar and central floating Add button interaction.
 
 ---
 
