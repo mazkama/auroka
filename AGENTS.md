@@ -40,10 +40,15 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
   - `WalletModal.tsx`: Supports Account Category selection (`BANK`, `E_WALLET`, `CRYPTO`, `CASH`), initial balance, account number, and color picker.
   - `WalletCards.tsx`: Displays Edit ✏️ and Delete 🗑️ action buttons on card hover.
 
+### 4. Mobile Bottom Navigation (`Sidebar.tsx` & `AppLayout.tsx`)
+- **Bottom Nav Bar**: Added a fixed mobile bottom navigation bar (`lg:hidden fixed bottom-0`) with `#004ac6` active pill styles, smooth icon scaling, and clear labels (`Dashboard`, `Transaksi`, `Dompet`, `Analisis`).
+- **Layout Spacing**: Updated `AppLayout` with `pb-20` on mobile view so content is never overlapped.
+- **Unit Testing**: Added dedicated test cases in `Sidebar.test.tsx` verifying mobile bottom navigation rendering and shortened labels.
+
 ---
 
 ## ✅ Quality & Verification Status
-- `npm run test`: **Passed (3/3 test files, 5/5 tests)**
+- `npm run test`: **Passed (3/3 test files, 6/6 tests)**
 - `npm run build`: **Compiled successfully with 0 errors**
 
 ---

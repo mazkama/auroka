@@ -11,7 +11,7 @@ describe('Sidebar Component', () => {
   it('renders menu items correctly on desktop view', () => {
     render(<Sidebar />);
 
-    expect(screen.getByText('Dashboard')).toBeInTheDocument();
+    expect(screen.getAllByText('Dashboard').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('Histori Transaksi')).toBeInTheDocument();
     expect(screen.getByText('Dompet & Anggaran')).toBeInTheDocument();
     expect(screen.getByText('Analisis & Laporan')).toBeInTheDocument();
@@ -30,5 +30,17 @@ describe('Sidebar Component', () => {
     expect(closeBtn).toBeInTheDocument();
     fireEvent.click(closeBtn);
     expect(handleClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders mobile bottom navigation bar with shortened labels', () => {
+    render(<Sidebar />);
+
+    const bottomNav = screen.getByRole('navigation', { name: 'Mobile Bottom Navigation' });
+    expect(bottomNav).toBeInTheDocument();
+
+    // Check shortened labels exist inside bottom nav
+    expect(screen.getByText('Transaksi')).toBeInTheDocument();
+    expect(screen.getByText('Dompet')).toBeInTheDocument();
+    expect(screen.getByText('Analisis')).toBeInTheDocument();
   });
 });

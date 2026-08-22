@@ -179,6 +179,43 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </aside>
         </div>
       )}
+
+      {/* 3. Mobile Bottom Navigation Bar (<1024px / lg) */}
+      <nav
+        aria-label="Mobile Bottom Navigation"
+        className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#e2e8f0] px-2 py-1.5 flex items-center justify-around shadow-lg shadow-black/5"
+      >
+        {navItems.map((item) => {
+          const isActive = pathname === item.href;
+          const shortName =
+            item.name === 'Histori Transaksi'
+              ? 'Transaksi'
+              : item.name === 'Dompet & Anggaran'
+              ? 'Dompet'
+              : item.name === 'Analisis & Laporan'
+              ? 'Analisis'
+              : item.name;
+
+          return (
+            <Link
+              key={`bottom-${item.href}`}
+              href={item.href}
+              className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-xl transition-all ${
+                isActive
+                  ? 'text-[#004ac6] font-bold bg-[#eff4ff]'
+                  : 'text-[#64748b] hover:text-[#004ac6] font-medium'
+              }`}
+            >
+              <item.icon
+                className={`h-5 w-5 transition-transform ${
+                  isActive ? 'text-[#004ac6] scale-110' : 'text-[#64748b]'
+                }`}
+              />
+              <span className="text-[10px] tracking-tight">{shortName}</span>
+            </Link>
+          );
+        })}
+      </nav>
     </>
   );
 };
