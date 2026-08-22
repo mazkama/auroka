@@ -49,11 +49,21 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **Title Text Removal**: Removed hardcoded page title `h1` and subtitle `p` across all app routes for a cleaner, modern look.
 - **Integrated Global Search**: Added a prominent, responsive search bar in the main header area equipped with a search icon, quick clear button `(X)`, shortcut indicator `⌘K`, and smooth focus states.
 
+### 6. Budgeting Management CRUD (`/dashboard` & `/wallets`)
+- **Full Clean Architecture CRUD**:
+  - `Domain`: Updated `IBudgetRepository.ts` & `budget.ts` with `CreateBudgetDTO` & `UpdateBudgetDTO`.
+  - `Application`: Created Use Cases (`CreateBudget.ts`, `UpdateBudget.ts`, `DeleteBudget.ts`).
+  - `Infrastructure`: Implemented in `MockBudgetRepository.ts` & registered in `di/container.ts`.
+  - `Presentation`: Exposed `addBudget`, `editBudget`, `removeBudget` in `useFinance.ts`.
+- **Interactive UI Components**:
+  - `BudgetModal.tsx`: Popup modal for creating and editing monthly category limits with Rp quick amount recommendations.
+  - `BudgetProgress.tsx`: Header `+ Set Anggaran` button, hover action controls (Edit ✏️ / Delete 🗑️), and warning/danger threshold indicators (80% & 95%).
+
 ---
 
 ## ✅ Quality & Verification Status
 - `npm run test`: **Passed (3/3 test files, 6/6 tests)**
-- `npm run build`: **Compiled successfully with 0 errors (10/10 static pages generated)**
+- `npm run build`: **Compiled successfully with 0 errors (12/12 static pages generated)**
 
 ---
 

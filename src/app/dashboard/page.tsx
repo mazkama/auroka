@@ -26,6 +26,9 @@ export default function DashboardPage() {
     budgets,
     refreshData,
     addTransaction,
+    addBudget,
+    editBudget,
+    removeBudget,
   } = useFinance();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -204,7 +207,12 @@ export default function DashboardPage() {
           </div>
 
           <div className="space-y-6">
-            <BudgetProgress budgets={budgets} />
+            <BudgetProgress
+              budgets={budgets}
+              onAddBudget={addBudget}
+              onEditBudget={editBudget}
+              onDeleteBudget={removeBudget}
+            />
           </div>
         </div>
       </div>

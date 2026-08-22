@@ -11,7 +11,17 @@ import { Wallet } from '@/domain/entities/wallet';
 import { Plus } from 'lucide-react';
 
 export default function WalletsPage() {
-  const { wallets, budgets, addTransaction, addWallet, editWallet, removeWallet } = useFinance();
+  const {
+    wallets,
+    budgets,
+    addTransaction,
+    addWallet,
+    editWallet,
+    removeWallet,
+    addBudget,
+    editBudget,
+    removeBudget,
+  } = useFinance();
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [walletToEdit, setWalletToEdit] = useState<Wallet | null>(null);
@@ -66,7 +76,12 @@ export default function WalletsPage() {
             />
           </div>
           <div>
-            <BudgetProgress budgets={budgets} />
+            <BudgetProgress
+              budgets={budgets}
+              onAddBudget={addBudget}
+              onEditBudget={editBudget}
+              onDeleteBudget={removeBudget}
+            />
           </div>
         </div>
       </div>

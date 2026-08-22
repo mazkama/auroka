@@ -5,7 +5,7 @@ import { container } from '@/infrastructure/di/container';
 import { FinancialSummary } from '@/domain/entities/summary';
 import { Transaction, CreateTransactionDTO } from '@/domain/entities/transaction';
 import { Wallet } from '@/domain/entities/wallet';
-import { Budget } from '@/domain/entities/budget';
+import { Budget, CreateBudgetDTO, UpdateBudgetDTO } from '@/domain/entities/budget';
 
 export function useFinance() {
   const [summary, setSummary] = useState<FinancialSummary | null>(null);
@@ -83,6 +83,33 @@ export function useFinance() {
     }
   };
 
+  const addBudget = async (dto: CreateBudgetDTO) => {
+    try {
+      await container.getCreateBudgetUseCase().execute(dto);
+      await fetchData();
+    } catch (err: unknown) {
+      throw new Error(err instanceof Error ? err.message : 'Gagal menambah anggaran');
+    }
+  };
+
+  const editBudget = async (dto: UpdateBudgetDTO) => {
+    try {
+      await container.getUpdateBudgetUseCase().execute(dto);
+      await fetchData();
+    } catch (err: unknown) {
+      throw new Error(err instanceof Error ? err.message : 'Gagal mengubah anggaran');
+    }
+  };
+
+  const removeBudget = async (id: string) => {
+    try {
+      await container.getDeleteBudgetUseCase().execute(id);
+      await fetchData();
+    } catch (err: unknown) {
+      throw new Error(err instanceof Error ? err.message : 'Gagal menghapus anggaran');
+    }
+  };
+
   return {
     summary,
     transactions,
@@ -95,5 +122,8 @@ export function useFinance() {
     addWallet,
     editWallet,
     removeWallet,
+    addBudget,
+    editBudget,
+    removeBudget,
   };
 }

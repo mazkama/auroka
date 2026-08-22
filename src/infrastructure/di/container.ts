@@ -10,6 +10,9 @@ import { GetFinancialSummaryUseCase } from '@/application/usecases/GetFinancialS
 import { GetTransactionsUseCase } from '@/application/usecases/GetTransactions';
 import { GetWalletsUseCase } from '@/application/usecases/GetWallets';
 import { GetBudgetsUseCase } from '@/application/usecases/GetBudgets';
+import { CreateBudgetUseCase } from '@/application/usecases/CreateBudget';
+import { UpdateBudgetUseCase } from '@/application/usecases/UpdateBudget';
+import { DeleteBudgetUseCase } from '@/application/usecases/DeleteBudget';
 import { CreateTransactionUseCase } from '@/application/usecases/CreateTransaction';
 import { CreateWallet } from '@/application/usecases/CreateWallet';
 import { UpdateWallet } from '@/application/usecases/UpdateWallet';
@@ -57,6 +60,18 @@ class Container {
 
   public getBudgetsUseCase(): GetBudgetsUseCase {
     return new GetBudgetsUseCase(this.budgetRepository);
+  }
+
+  public getCreateBudgetUseCase(): CreateBudgetUseCase {
+    return new CreateBudgetUseCase(this.budgetRepository);
+  }
+
+  public getUpdateBudgetUseCase(): UpdateBudgetUseCase {
+    return new UpdateBudgetUseCase(this.budgetRepository);
+  }
+
+  public getDeleteBudgetUseCase(): DeleteBudgetUseCase {
+    return new DeleteBudgetUseCase(this.budgetRepository);
   }
 
   public getCreateTransactionUseCase(): CreateTransactionUseCase {
