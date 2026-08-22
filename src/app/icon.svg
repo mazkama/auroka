@@ -1,47 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
   <defs>
-    <!-- Background Gradient (Auroka Deep Blue) -->
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <!-- Auroka Primary Blue Gradient -->
+    <linearGradient id="aurokaBlue" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#004ac6" />
-      <stop offset="100%" stop-color="#1d4ed8" />
+      <stop offset="100%" stop-color="#2563eb" />
     </linearGradient>
-
-    <!-- Gold Accent Gradient (Aurum / Emas) -->
-    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FBBF24" />
-      <stop offset="50%" stop-color="#F59E0B" />
-      <stop offset="100%" stop-color="#D97706" />
-    </linearGradient>
-
-    <!-- White Glow / Highlight Gradient -->
-    <linearGradient id="shineGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.9" />
-      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.2" />
-    </linearGradient>
-
-    <!-- Drop Shadow Filter -->
-    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="10" stdDeviation="14" flood-color="#001d5c" flood-opacity="0.4" />
-    </filter>
   </defs>
 
-  <!-- Background Squircle Badge -->
-  <rect x="32" y="32" width="448" height="448" rx="112" fill="url(#bgGrad)" filter="url(#shadow)" />
+  <!-- Clean White Background Canvas -->
+  <rect width="512" height="512" rx="128" fill="#ffffff" />
 
-  <!-- Outer Decorative Aurum Ring -->
-  <circle cx="256" cy="256" r="165" fill="none" stroke="url(#goldGrad)" stroke-width="12" stroke-opacity="0.35" />
+  <!-- Inner Blue Brand Badge (Matching Sidebar & Navbar Logo) -->
+  <rect x="48" y="48" width="416" height="416" rx="96" fill="url(#aurokaBlue)" />
 
-  <!-- Secondary Coin (Top Right Backing) -->
-  <circle cx="295" cy="220" r="85" fill="none" stroke="url(#goldGrad)" stroke-width="16" />
-  <circle cx="295" cy="220" r="60" fill="url(#shineGrad)" opacity="0.12" />
+  <!-- Coins Brand Logo Emblem (Crisp White) -->
+  <!-- Backing Coin -->
+  <circle cx="310" cy="215" r="90" fill="none" stroke="#ffffff" stroke-width="24" opacity="0.9" />
+  <path d="M255 160 A90 90 0 0 1 395 300" fill="none" stroke="#ffffff" stroke-width="14" opacity="0.5" />
 
-  <!-- Primary Coin Badge with Auroka 'A' Monogram (Front Left Overlay) -->
-  <g filter="url(#shadow)">
-    <!-- Base Coin -->
-    <circle cx="225" cy="275" r="105" fill="url(#bgGrad)" stroke="url(#goldGrad)" stroke-width="20" />
-    <!-- Inner Dashed Ring -->
-    <circle cx="225" cy="275" r="76" fill="none" stroke="url(#shineGrad)" stroke-width="6" stroke-dasharray="10 6" opacity="0.75" />
-    <!-- Stylized 'A' (Auroka - Emas / Kemakmuran) -->
-    <path d="M225 218 L262 318 H244 L235 293 H215 L206 318 H188 Z M225 248 L219 278 H231 Z" fill="url(#goldGrad)" />
-  </g>
+  <!-- Foreground Main Coin -->
+  <circle cx="215" cy="305" r="100" fill="url(#aurokaBlue)" stroke="#ffffff" stroke-width="26" />
+  <circle cx="215" cy="305" r="50" fill="none" stroke="#ffffff" stroke-width="20" />
 </svg>
