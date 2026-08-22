@@ -124,8 +124,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <>
       {/* 1. Desktop Permanent Sidebar (≥1024px / lg) */}
-      <aside className="hidden lg:flex flex-col w-64 border-r border-[#c3c6d7]/40 bg-white p-4 min-h-[calc(100vh-4rem)] shadow-sm">
-        <div className="flex flex-col h-full justify-between">
+      <aside className="hidden lg:flex flex-col w-64 shrink-0 h-full border-r border-[#c3c6d7]/40 bg-white p-4 overflow-y-auto shadow-sm">
+        <div className="flex flex-col h-full justify-between min-h-full">
           <div className="space-y-4">
             <div className="flex items-center gap-2.5 px-3 py-2 border-b border-[#c3c6d7]/40 pb-3">
               <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-tr from-[#004ac6] to-[#2563eb] text-white shadow-md">
