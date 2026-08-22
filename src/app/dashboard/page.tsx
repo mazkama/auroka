@@ -75,8 +75,9 @@ export default function DashboardPage() {
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none transition-transform duration-700 group-hover:scale-110"></div>
             <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-white/5 rounded-full blur-2xl translate-y-1/3 -translate-x-1/4 pointer-events-none"></div>
             
+            {/* Layer 1: Full-card Art Deco Concentric Arch Pattern */}
             <svg 
-              className="absolute inset-0 w-full h-full opacity-[0.12] pointer-events-none text-white" 
+              className="absolute inset-0 w-full h-full opacity-[0.08] pointer-events-none text-white" 
               xmlns="http://www.w3.org/2000/svg"
             >
               <defs>
@@ -110,6 +111,27 @@ export default function DashboardPage() {
                 </pattern>
               </defs>
               <rect width="100%" height="100%" fill="url(#pattern-artdeco-arch)" />
+            </svg>
+
+            {/* Layer 2: 2-Layer Sweeping Wave (Lower on Left, Higher on Right) */}
+            <svg 
+              className="absolute bottom-0 left-0 w-full h-[200px] sm:h-[280px] pointer-events-none text-white" 
+              viewBox="0 0 1440 320" 
+              xmlns="http://www.w3.org/2000/svg"
+              preserveAspectRatio="none"
+            >
+              {/* Wave Layer 1 (Back) */}
+              <path 
+                fill="currentColor" 
+                fillOpacity="0.08" 
+                d="M 0,110 C 280,210 580,80 880,150 C 1130,210 1280,40 1440,80 L 1440,320 L 0,320 Z"
+              ></path>
+              {/* Wave Layer 2 (Front) */}
+              <path 
+                fill="currentColor" 
+                fillOpacity="0.14" 
+                d="M 0,150 C 260,245 560,115 860,185 C 1110,245 1260,75 1440,115 L 1440,320 L 0,320 Z"
+              ></path>
             </svg>
 
             <div className="flex justify-between items-start relative z-10">
