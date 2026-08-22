@@ -19,9 +19,13 @@ export const metadata: Metadata = {
   description:
     'Sistem manajemen keuangan modern berbasis Clean Architecture & The Ledger System. Dari kebiasaan kecil menuju kemakmuran.',
   icons: {
-    icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
-    shortcut: ['/icon.svg'],
-    apple: [{ url: '/icon.svg', type: 'image/svg+xml' }],
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', type: 'image/png' },
+    ],
+    shortcut: ['/favicon.ico'],
+    apple: [{ url: '/icon.png', sizes: '192x192', type: 'image/png' }],
   },
 };
 
