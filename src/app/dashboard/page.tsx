@@ -75,12 +75,15 @@ export default function DashboardPage() {
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none transition-transform duration-700 group-hover:scale-110"></div>
             <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-white/5 rounded-full blur-2xl translate-y-1/3 -translate-x-1/4 pointer-events-none"></div>
             
-            {/* Layer 1: Full-card Art Deco Concentric Arch Pattern */}
+            {/* Clean Wave & Masked Art Deco Motif Container */}
             <svg 
-              className="absolute inset-0 w-full h-full opacity-[0.08] pointer-events-none text-white" 
+              className="absolute inset-0 w-full h-full pointer-events-none text-white" 
               xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 1440 320"
+              preserveAspectRatio="none"
             >
               <defs>
+                {/* Art Deco Pattern Definition */}
                 <pattern id="pattern-artdeco-arch" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
                   <g fill="none" stroke="currentColor" strokeWidth="1.2">
                     <circle cx="30" cy="0" r="7" />
@@ -109,28 +112,29 @@ export default function DashboardPage() {
                     <circle cx="30" cy="30" r="28" />
                   </g>
                 </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#pattern-artdeco-arch)" />
-            </svg>
 
-            {/* Layer 2: 2-Layer Sweeping Wave (Lower on Left, Higher on Right) */}
-            <svg 
-              className="absolute bottom-0 left-0 w-full h-[200px] sm:h-[280px] pointer-events-none text-white" 
-              viewBox="0 0 1440 320" 
-              xmlns="http://www.w3.org/2000/svg"
-              preserveAspectRatio="none"
-            >
-              {/* Wave Layer 1 (Back) */}
+                {/* Mask to ensure Art Deco motif is hidden underneath wave */}
+                <mask id="motif-mask">
+                  <rect width="100%" height="100%" fill="white" />
+                  <path fill="black" d="M 0,170 C 280,240 580,100 880,160 C 1130,220 1280,50 1440,90 L 1440,320 L 0,320 Z" />
+                </mask>
+              </defs>
+
+              {/* 1. Upper Motif Area (Masked Out Underneath Wave) */}
+              <rect width="100%" height="100%" fill="url(#pattern-artdeco-arch)" opacity="0.10" mask="url(#motif-mask)" />
+
+              {/* 2. Wave Layer 1 (Back, Clean Without Motif, Slightly Lower on Left) */}
               <path 
                 fill="currentColor" 
-                fillOpacity="0.08" 
-                d="M 0,110 C 280,210 580,80 880,150 C 1130,210 1280,40 1440,80 L 1440,320 L 0,320 Z"
+                fillOpacity="0.10" 
+                d="M 0,170 C 280,240 580,100 880,160 C 1130,220 1280,50 1440,90 L 1440,320 L 0,320 Z"
               ></path>
-              {/* Wave Layer 2 (Front) */}
+
+              {/* 3. Wave Layer 2 (Front, Clean Without Motif, Slightly Lower on Left) */}
               <path 
                 fill="currentColor" 
-                fillOpacity="0.14" 
-                d="M 0,150 C 260,245 560,115 860,185 C 1110,245 1260,75 1440,115 L 1440,320 L 0,320 Z"
+                fillOpacity="0.16" 
+                d="M 0,200 C 260,265 560,135 860,195 C 1110,255 1260,85 1440,125 L 1440,320 L 0,320 Z"
               ></path>
             </svg>
 
