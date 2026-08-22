@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import {
   Menu,
@@ -10,6 +10,11 @@ import {
   ShieldCheck,
   User,
   Coins,
+  CheckCircle2,
+  AlertTriangle,
+  Info,
+  ArrowRight,
+  X,
 } from 'lucide-react';
 
 interface AppHeaderProps {
@@ -22,6 +27,19 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   onOpenAddModal,
 }) => {
   const pathname = usePathname();
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  // Close notification popover when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setIsNotifOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const getPageTitle = (path: string) => {
     switch (path) {
@@ -37,6 +55,39 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
         return 'Auroka';
     }
   };
+
+  const sampleNotifications = [
+    {
+      id: 1,
+      type: 'success',
+      title: 'Pemasukan Dicatat',
+      desc: 'Gaji Agustus Rp 25.000.000 berhasil ditambahkan ke BCA.',
+      time: '10 menit yang lalu',
+      icon: CheckCircle2,
+      iconColor: 'text-[#006c49]',
+      bgColor: 'bg-[#006c49]/10',
+    },
+    {
+      id: 2,
+      type: 'warning',
+      title: 'Batas Anggaran Makanan',
+      desc: 'Kategori Makan & Minum telah mencapai 85% dari batas bulanan.',
+      time: '1 jam yang lalu',
+      icon: AlertTriangle,
+      iconColor: 'text-amber-600',
+      bgColor: 'bg-amber-500/10',
+    },
+    {
+      id: 3,
+      type: 'info',
+      title: 'Audit Ledger Selesai',
+      desc: 'Semua 5 dompet berhasil disinkronkan tanpa penyimpangan saldo.',
+      time: '3 jam yang lalu',
+      icon: Info,
+      iconColor: 'text-[#004ac6]',
+      bgColor: 'bg-[#004ac6]/10',
+    },
+  ];
 
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-[#c3c6d7]/40 bg-white/90 px-4 sm:px-6 backdrop-blur-md shadow-sm">
@@ -78,11 +129,73 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           <span>Ledger SUM Active</span>
         </div>
 
-        {/* Notification Bell */}
-        <button className="relative p-2 rounded-xl text-[#434655] hover:bg-[#eff4ff] hover:text-[#004ac6] transition-colors">
-          <Bell className="h-5 w-5" />
-          <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[#004ac6]"></span>
-        </button>
+        {/* Notification Bell & Dropdown Popover */}
+        <div className="relative" ref={notifRef}>
+          <button
+            onClick={() => setIsNotifOpen(!isNotifOpen)}
+            aria-label="Buka Notifikasi"
+            className={`relative p-2 rounded-xl text-[#434655] transition-colors ${
+              isNotifOpen ? 'bg-[#eff4ff] text-[#004ac6]' : 'hover:bg-[#eff4ff] hover:text-[#004ac6]'
+            }`}
+          >
+            <Bell className="h-5 w-5" />
+            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-[#004ac6] ring-2 ring-white animate-pulse"></span>
+          </button>
+
+          {/* Notification Popover Dropdown Window */}
+          {isNotifOpen && (
+            <div className="absolute right-0 top-12 w-80 sm:w-96 rounded-2xl bg-white border border-[#e2e8f0] shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b border-[#f1f5f9] bg-[#f8fafc]">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-bold text-sm text-[#0f172a]">Notifikasi Keuangan</h3>
+                  <span className="bg-[#004ac6]/10 text-[#004ac6] text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    3 Baru
+                  </span>
+                </div>
+                <button
+                  onClick={() => setIsNotifOpen(false)}
+                  className="p-1 rounded-lg text-[#64748b] hover:bg-[#e2e8f0] transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              {/* Notification List */}
+              <div className="divide-y divide-[#f1f5f9] max-h-80 overflow-y-auto">
+                {sampleNotifications.map((notif) => (
+                  <div
+                    key={notif.id}
+                    className="p-3.5 flex items-start gap-3 hover:bg-[#f8fafc] transition-colors cursor-pointer"
+                  >
+                    <div className={`p-2 rounded-xl ${notif.bgColor} ${notif.iconColor} shrink-0 mt-0.5`}>
+                      <notif.icon className="h-4 w-4" />
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <h4 className="text-xs font-bold text-[#0f172a]">{notif.title}</h4>
+                        <span className="text-[10px] text-[#94a3b8]">{notif.time}</span>
+                      </div>
+                      <p className="text-xs text-[#64748b] leading-relaxed">{notif.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Footer CTA Button to View All Notifications */}
+              <div className="p-3 bg-[#f8fafc] border-t border-[#f1f5f9]">
+                <a
+                  href="/transactions"
+                  onClick={() => setIsNotifOpen(false)}
+                  className="w-full flex items-center justify-center gap-2 bg-white border border-[#e2e8f0] hover:border-[#004ac6] text-[#004ac6] hover:bg-[#eff4ff] py-2 rounded-xl text-xs font-bold transition-all shadow-sm group"
+                >
+                  <span>Lihat Semua Pusat Notifikasi</span>
+                  <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                </a>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Quick Add Transaction Button */}
         {onOpenAddModal && (
