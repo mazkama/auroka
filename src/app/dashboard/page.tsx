@@ -75,42 +75,40 @@ export default function DashboardPage() {
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none transition-transform duration-700 group-hover:scale-110"></div>
             <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-white/5 rounded-full blur-2xl translate-y-1/3 -translate-x-1/4 pointer-events-none"></div>
             
-            {/* Clean Wave & Masked Art Deco Motif Container */}
+            {/* 1. Unstretched Batik Kawung Outline Pattern (True Scale 1:1, Bold Stroke) */}
             <svg 
-              className="absolute inset-0 w-full h-full pointer-events-none text-white" 
+              className="absolute inset-0 w-full h-full opacity-[0.16] pointer-events-none text-white" 
               xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 1440 320"
-              preserveAspectRatio="none"
             >
               <defs>
-                {/* Batik Kawung Outline Pattern Definition */}
-                <pattern id="pattern-kawung-outline" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-                  <g fill="none" stroke="currentColor" strokeWidth="1.8">
-                    <circle cx="0" cy="0" r="28.28" />
-                    <circle cx="40" cy="0" r="28.28" />
-                    <circle cx="0" cy="40" r="28.28" />
-                    <circle cx="40" cy="40" r="28.28" />
+                <pattern id="pattern-kawung-bold" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+                  <g fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <circle cx="0" cy="0" r="42.42" />
+                    <circle cx="60" cy="0" r="42.42" />
+                    <circle cx="0" cy="60" r="42.42" />
+                    <circle cx="60" cy="60" r="42.42" />
+                    <circle cx="30" cy="30" r="42.42" />
                   </g>
                 </pattern>
-
-                {/* Mask to ensure Batik Kawung motif is hidden underneath wave */}
-                <mask id="motif-mask">
-                  <rect width="100%" height="100%" fill="white" />
-                  <path fill="black" d="M 0,170 C 280,240 580,100 880,160 C 1130,220 1280,50 1440,90 L 1440,320 L 0,320 Z" />
-                </mask>
               </defs>
+              <rect width="100%" height="100%" fill="url(#pattern-kawung-bold)" />
+            </svg>
 
-              {/* 1. Upper Motif Area (Batik Kawung Outline, Masked Out Underneath Wave) */}
-              <rect width="100%" height="100%" fill="url(#pattern-kawung-outline)" opacity="0.14" mask="url(#motif-mask)" />
-
-              {/* 2. Wave Layer 1 (Back, Clean Without Motif, Slightly Lower on Left) */}
+            {/* 2. 2-Layer Sweeping Wave (Lower on Left, Higher on Right) */}
+            <svg 
+              className="absolute bottom-0 left-0 w-full h-[200px] sm:h-[280px] pointer-events-none text-white" 
+              viewBox="0 0 1440 320" 
+              xmlns="http://www.w3.org/2000/svg"
+              preserveAspectRatio="none"
+            >
+              {/* Wave Layer 1 (Back, Slightly Lower on Left) */}
               <path 
                 fill="currentColor" 
                 fillOpacity="0.10" 
                 d="M 0,170 C 280,240 580,100 880,160 C 1130,220 1280,50 1440,90 L 1440,320 L 0,320 Z"
               ></path>
 
-              {/* 3. Wave Layer 2 (Front, Clean Without Motif, Slightly Lower on Left) */}
+              {/* Wave Layer 2 (Front, Slightly Lower on Left) */}
               <path 
                 fill="currentColor" 
                 fillOpacity="0.16" 
