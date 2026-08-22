@@ -76,23 +76,40 @@ export default function DashboardPage() {
             <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-white/5 rounded-full blur-2xl translate-y-1/3 -translate-x-1/4 pointer-events-none"></div>
             
             <svg 
-              className="absolute bottom-0 left-0 w-full h-[200px] sm:h-[280px] pointer-events-none text-white" 
-              viewBox="0 0 1440 320" 
+              className="absolute inset-0 w-full h-full opacity-[0.12] pointer-events-none text-white" 
               xmlns="http://www.w3.org/2000/svg"
-              preserveAspectRatio="none"
             >
-              {/* Wave Layer 1 (Back) */}
-              <path 
-                fill="currentColor" 
-                fillOpacity="0.08" 
-                d="M 0,110 C 280,210 580,80 880,150 C 1130,210 1280,40 1440,80 L 1440,320 L 0,320 Z"
-              ></path>
-              {/* Wave Layer 2 (Front) */}
-              <path 
-                fill="currentColor" 
-                fillOpacity="0.15" 
-                d="M 0,150 C 260,245 560,115 860,185 C 1110,245 1260,75 1440,115 L 1440,320 L 0,320 Z"
-              ></path>
+              <defs>
+                <pattern id="pattern-artdeco-arch" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+                  <g fill="none" stroke="currentColor" strokeWidth="1.2">
+                    <circle cx="30" cy="0" r="7" />
+                    <circle cx="30" cy="0" r="14" />
+                    <circle cx="30" cy="0" r="21" />
+                    <circle cx="30" cy="0" r="28" />
+
+                    <circle cx="30" cy="60" r="7" />
+                    <circle cx="30" cy="60" r="14" />
+                    <circle cx="30" cy="60" r="21" />
+                    <circle cx="30" cy="60" r="28" />
+
+                    <circle cx="0" cy="30" r="7" />
+                    <circle cx="0" cy="30" r="14" />
+                    <circle cx="0" cy="30" r="21" />
+                    <circle cx="0" cy="30" r="28" />
+
+                    <circle cx="60" cy="30" r="7" />
+                    <circle cx="60" cy="30" r="14" />
+                    <circle cx="60" cy="30" r="21" />
+                    <circle cx="60" cy="30" r="28" />
+
+                    <circle cx="30" cy="30" r="7" />
+                    <circle cx="30" cy="30" r="14" />
+                    <circle cx="30" cy="30" r="21" />
+                    <circle cx="30" cy="30" r="28" />
+                  </g>
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#pattern-artdeco-arch)" />
             </svg>
 
             <div className="flex justify-between items-start relative z-10">
