@@ -45,11 +45,15 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - **Layout Spacing**: Updated `AppLayout` with `pb-20` on mobile view so content is never overlapped.
 - **Unit Testing**: Updated `Sidebar.test.tsx` verifying the 5-item mobile bottom navigation bar and central floating Add button interaction.
 
+### 5. Global Header Redesign & Unified Search Bar (`AppHeader.tsx`)
+- **Title Text Removal**: Removed hardcoded page title `h1` and subtitle `p` across all app routes for a cleaner, modern look.
+- **Integrated Global Search**: Added a prominent, responsive search bar in the main header area equipped with a search icon, quick clear button `(X)`, shortcut indicator `⌘K`, and smooth focus states.
+
 ---
 
 ## ✅ Quality & Verification Status
 - `npm run test`: **Passed (3/3 test files, 6/6 tests)**
-- `npm run build`: **Compiled successfully with 0 errors**
+- `npm run build`: **Compiled successfully with 0 errors (10/10 static pages generated)**
 
 ---
 
