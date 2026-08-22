@@ -83,45 +83,25 @@ export default function DashboardPage() {
               preserveAspectRatio="none"
             >
               <defs>
-                {/* Art Deco Pattern Definition */}
-                <pattern id="pattern-artdeco-arch" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
-                  <g fill="none" stroke="currentColor" strokeWidth="1.2">
-                    <circle cx="30" cy="0" r="7" />
-                    <circle cx="30" cy="0" r="14" />
-                    <circle cx="30" cy="0" r="21" />
-                    <circle cx="30" cy="0" r="28" />
-
-                    <circle cx="30" cy="60" r="7" />
-                    <circle cx="30" cy="60" r="14" />
-                    <circle cx="30" cy="60" r="21" />
-                    <circle cx="30" cy="60" r="28" />
-
-                    <circle cx="0" cy="30" r="7" />
-                    <circle cx="0" cy="30" r="14" />
-                    <circle cx="0" cy="30" r="21" />
-                    <circle cx="0" cy="30" r="28" />
-
-                    <circle cx="60" cy="30" r="7" />
-                    <circle cx="60" cy="30" r="14" />
-                    <circle cx="60" cy="30" r="21" />
-                    <circle cx="60" cy="30" r="28" />
-
-                    <circle cx="30" cy="30" r="7" />
-                    <circle cx="30" cy="30" r="14" />
-                    <circle cx="30" cy="30" r="21" />
-                    <circle cx="30" cy="30" r="28" />
+                {/* Batik Kawung Outline Pattern Definition */}
+                <pattern id="pattern-kawung-outline" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                  <g fill="none" stroke="currentColor" strokeWidth="1.8">
+                    <circle cx="0" cy="0" r="28.28" />
+                    <circle cx="40" cy="0" r="28.28" />
+                    <circle cx="0" cy="40" r="28.28" />
+                    <circle cx="40" cy="40" r="28.28" />
                   </g>
                 </pattern>
 
-                {/* Mask to ensure Art Deco motif is hidden underneath wave */}
+                {/* Mask to ensure Batik Kawung motif is hidden underneath wave */}
                 <mask id="motif-mask">
                   <rect width="100%" height="100%" fill="white" />
                   <path fill="black" d="M 0,170 C 280,240 580,100 880,160 C 1130,220 1280,50 1440,90 L 1440,320 L 0,320 Z" />
                 </mask>
               </defs>
 
-              {/* 1. Upper Motif Area (Masked Out Underneath Wave) */}
-              <rect width="100%" height="100%" fill="url(#pattern-artdeco-arch)" opacity="0.10" mask="url(#motif-mask)" />
+              {/* 1. Upper Motif Area (Batik Kawung Outline, Masked Out Underneath Wave) */}
+              <rect width="100%" height="100%" fill="url(#pattern-kawung-outline)" opacity="0.14" mask="url(#motif-mask)" />
 
               {/* 2. Wave Layer 1 (Back, Clean Without Motif, Slightly Lower on Left) */}
               <path 
