@@ -74,10 +74,10 @@ export default function DashboardPage() {
             {/* Elegant Background Motif */}
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none transition-transform duration-700 group-hover:scale-110"></div>
             <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-white/5 rounded-full blur-2xl translate-y-1/3 -translate-x-1/4 pointer-events-none"></div>
-            
-            {/* 1. Unstretched Batik Kawung Pattern (Erased Underneath Wave Area) */}
-            <svg 
-              className="absolute inset-0 w-full h-full opacity-[0.14] pointer-events-none text-white" 
+
+            {/* 1. Unstretched Batik Kawung Outline Pattern (Masked Out Underneath Wave Area) */}
+            <svg
+              className="absolute inset-0 w-full h-full opacity-[0.16] pointer-events-none text-white"
               xmlns="http://www.w3.org/2000/svg"
             >
               <defs>
@@ -91,7 +91,7 @@ export default function DashboardPage() {
                   </g>
                 </pattern>
 
-                {/* Mask using exact wave path to completely erase motif inside wave area */}
+                {/* Mask to ensure wave area has ZERO motif inside it */}
                 <mask id="motif-wave-mask" maskContentUnits="objectBoundingBox">
                   <rect width="1" height="1" fill="white" />
                   <path fill="black" d="M 0,0.53 C 0.19,0.75 0.40,0.31 0.61,0.50 C 0.78,0.68 0.88,0.15 1,0.28 L 1,1 L 0,1 Z" />
@@ -101,23 +101,23 @@ export default function DashboardPage() {
             </svg>
 
             {/* 2. 2-Layer Sweeping Wave (Lower on Left, Higher on Right) */}
-            <svg 
-              className="absolute bottom-0 left-0 w-full h-[200px] sm:h-[280px] pointer-events-none text-white" 
-              viewBox="0 0 1440 320" 
+            <svg
+              className="absolute bottom-0 left-0 w-full h-[200px] sm:h-[280px] pointer-events-none text-white"
+              viewBox="0 0 1440 320"
               xmlns="http://www.w3.org/2000/svg"
               preserveAspectRatio="none"
             >
               {/* Wave Layer 1 (Back, Slightly Lower on Left) */}
-              <path 
-                fill="currentColor" 
-                fillOpacity="0.10" 
+              <path
+                fill="currentColor"
+                fillOpacity="0.10"
                 d="M 0,170 C 280,240 580,100 880,160 C 1130,220 1280,50 1440,90 L 1440,320 L 0,320 Z"
               ></path>
 
               {/* Wave Layer 2 (Front, Slightly Lower on Left) */}
-              <path 
-                fill="currentColor" 
-                fillOpacity="0.16" 
+              <path
+                fill="currentColor"
+                fillOpacity="0.16"
                 d="M 0,200 C 260,265 560,135 860,195 C 1110,255 1260,85 1440,125 L 1440,320 L 0,320 Z"
               ></path>
             </svg>
