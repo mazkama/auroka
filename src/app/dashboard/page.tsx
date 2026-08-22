@@ -75,9 +75,9 @@ export default function DashboardPage() {
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none transition-transform duration-700 group-hover:scale-110"></div>
             <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-white/5 rounded-full blur-2xl translate-y-1/3 -translate-x-1/4 pointer-events-none"></div>
             
-            {/* 1. Unstretched Batik Kawung Outline Pattern (Masked Out Underneath Wave Area) */}
+            {/* 1. Unstretched Batik Kawung Pattern (Erased Underneath Wave Area) */}
             <svg 
-              className="absolute inset-0 w-full h-full opacity-[0.16] pointer-events-none text-white" 
+              className="absolute inset-0 w-full h-full opacity-[0.14] pointer-events-none text-white" 
               xmlns="http://www.w3.org/2000/svg"
             >
               <defs>
@@ -91,7 +91,7 @@ export default function DashboardPage() {
                   </g>
                 </pattern>
 
-                {/* Mask to ensure wave area has ZERO motif inside it */}
+                {/* Mask using exact wave path to completely erase motif inside wave area */}
                 <mask id="motif-wave-mask" maskContentUnits="objectBoundingBox">
                   <rect width="1" height="1" fill="white" />
                   <path fill="black" d="M 0,0.53 C 0.19,0.75 0.40,0.31 0.61,0.50 C 0.78,0.68 0.88,0.15 1,0.28 L 1,1 L 0,1 Z" />
