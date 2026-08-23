@@ -114,17 +114,18 @@ npm run dev
 Buka browser Anda dan akses:
 👉 **`http://localhost:3000`**
 
-### 4. Konfigurasi Switching ke Backend API (Masa Depan)
+### 4. Konfigurasi Switching ke Backend API & Monorepo
 Secara bawaan, aplikasi membaca file `.env.local`:
 
 ```env
 NEXT_PUBLIC_USE_MOCK=true
 ```
 
-Ketika backend API (Golang / PostgreSQL) sudah siap:
-1. Buat repositori API (`ApiTransactionRepository`, `ApiWalletRepository`) di `src/infrastructure/api/`.
-2. Daftarkan repositori API pada `src/infrastructure/di/container.ts`.
-3. Ubah nilai `NEXT_PUBLIC_USE_MOCK=false` pada `.env.local`.
+Ketika backend API (Golang / PostgreSQL / NestJS) siap untuk digabungkan ke dalam 1 Monorepo:
+1. Baca panduan lengkap monorepo pada [MONOREPO_GUIDE.md](file:///run/media/alanmarkup/New%20Volume/Alan%20Space/Project%202026/auroka-frontend/MONOREPO_GUIDE.md).
+2. Buat repositori API (`ApiTransactionRepository`, `ApiWalletRepository`) di `src/infrastructure/api/`.
+3. Daftarkan repositori API pada `src/infrastructure/di/container.ts`.
+4. Ubah nilai `NEXT_PUBLIC_USE_MOCK=false` pada `.env.local`.
 
 ---
 
