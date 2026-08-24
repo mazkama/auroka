@@ -37,7 +37,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Histori Transaksi', href: '/transactions', icon: Receipt },
     { name: 'Dompet Digital', href: '/wallets', icon: Wallet },
-    { name: 'Anggaran Bulanan', href: '/budgets', icon: PieChart },
     { name: 'Analisis & Laporan', href: '/analytics', icon: BarChart3 },
   ];
 

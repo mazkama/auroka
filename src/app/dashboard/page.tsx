@@ -13,7 +13,6 @@ import {
   TrendingUp,
   TrendingDown,
   Scale,
-  RefreshCw,
   PlusCircle,
   ShieldCheck,
 } from 'lucide-react';
@@ -24,7 +23,6 @@ export default function DashboardPage() {
     transactions,
     wallets,
     budgets,
-    refreshData,
     addTransaction,
     addBudget,
     editBudget,
@@ -53,13 +51,6 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={refreshData}
-              className="flex items-center gap-1.5 bg-[#eff4ff] hover:bg-[#dce9ff] text-[#004ac6] border border-[#c3c6d7]/50 px-3.5 py-2 rounded-xl text-xs font-semibold transition-colors"
-            >
-              <RefreshCw className="h-3.5 w-3.5" />
-              <span>Sync Data</span>
-            </button>
             <button
               onClick={() => setIsModalOpen(true)}
               className="flex items-center gap-2 bg-[#004ac6] hover:bg-[#2563eb] text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md shadow-[#004ac6]/20"

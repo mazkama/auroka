@@ -6,7 +6,6 @@ import {
   Bell,
   Search,
   PlusCircle,
-  ShieldCheck,
   CheckCircle2,
   AlertTriangle,
   Info,
@@ -86,37 +85,31 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
         {/* Global Search Bar */}
         <div className="relative w-full max-w-sm sm:max-w-md">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-[#434655]" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cari transaksi, dompet, atau laporan..."
-            className="w-full rounded-xl bg-[#f8f9ff] border border-[#c3c6d7]/60 pl-10 pr-9 py-2 text-xs sm:text-sm text-[#0b1c30] placeholder-[#64748b] focus:outline-none focus:border-[#004ac6] focus:bg-white focus:ring-2 focus:ring-[#004ac6]/10 transition-all"
+            className="w-full rounded-xl bg-[#f8f9ff] border border-[#c3c6d7]/60 pl-4 pr-10 py-2 text-xs sm:text-sm text-[#0b1c30] placeholder-[#64748b] focus:outline-none focus:border-[#004ac6] focus:bg-white focus:ring-2 focus:ring-[#004ac6]/10 transition-all"
           />
           {searchQuery ? (
             <button
               onClick={() => setSearchQuery('')}
               className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 rounded-full text-[#64748b] hover:text-[#0b1c30] hover:bg-[#e2e8f0] transition-colors"
+              aria-label="Hapus pencarian"
             >
-              <X className="h-3.5 w-3.5" />
+              <X className="h-4 w-4" />
             </button>
           ) : (
-            <kbd className="hidden sm:inline-flex absolute right-3 top-1/2 -translate-y-1/2 items-center gap-0.5 rounded border border-[#c3c6d7]/60 bg-white px-1.5 py-0.5 text-[10px] font-medium text-[#64748b]">
-              ⌘K
-            </kbd>
+            <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none text-[#64748b]">
+              <Search className="h-4 w-4" />
+            </div>
           )}
         </div>
       </div>
 
-      {/* Right Area: Status Badge, Quick Action, Notifications & Profile */}
+      {/* Right Area: Quick Action, Notifications & Profile */}
       <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-        {/* Ledger Status Badge */}
-        <div className="hidden xl:flex items-center gap-1.5 bg-[#006c49]/10 text-[#006c49] border border-[#006c49]/20 px-2.5 py-1 rounded-full text-xs font-semibold">
-          <ShieldCheck className="h-3.5 w-3.5" />
-          <span>Ledger SUM Active</span>
-        </div>
-
         {/* Notification Bell & Dropdown Popover */}
         <div className="relative" ref={notifRef}>
           <button

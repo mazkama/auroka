@@ -74,7 +74,7 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
   };
 
   return (
-    <div className="rounded-2xl bg-white border border-[#e2e8f0] p-5 space-y-4 shadow-sm">
+    <div className="rounded-2xl bg-white border border-[#e2e8f0] p-4 sm:p-5 space-y-4 shadow-sm overflow-hidden">
       {/* Header & Search Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
@@ -114,38 +114,38 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
             return (
               <div
                 key={tx.id}
-                className="rounded-xl bg-white border border-[#e2e8f0] p-4 space-y-3 hover:border-[#cbd5e1] hover:shadow-md transition-all duration-200"
+                className="rounded-xl bg-white border border-[#e2e8f0] p-3.5 sm:p-4 space-y-3 hover:border-[#cbd5e1] hover:shadow-md transition-all duration-200 overflow-hidden"
               >
                 {/* Transaction Header */}
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
+                <div className="flex items-start justify-between gap-2.5 sm:gap-3">
+                  <div className="flex items-start sm:items-center gap-2.5 sm:gap-3 min-w-0 flex-1">
                     <div
-                      className={`flex h-10 w-10 items-center justify-center rounded-xl shadow-sm ${
+                      className={`flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl shadow-sm ${
                         isIncome
                           ? 'bg-[#f0fdf4] text-[#16a34a] border border-[#bbf7d0]'
                           : 'bg-[#fff1f2] text-[#e11d48] border border-[#fecdd3]'
                       }`}
                     >
                       {isIncome ? (
-                        <ArrowDownLeft className="h-5 w-5" />
+                        <ArrowDownLeft className="h-4 w-4 sm:h-5 sm:w-5" />
                       ) : (
-                        <ArrowUpRight className="h-5 w-5" />
+                        <ArrowUpRight className="h-4 w-4 sm:h-5 sm:w-5" />
                       )}
                     </div>
-                    <div>
-                      <h4 className="font-bold text-[#0f172a] text-sm">
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-bold text-[#0f172a] text-xs sm:text-sm break-words leading-tight sm:leading-normal">
                         {tx.title}
                       </h4>
-                      <div className="flex items-center gap-2 text-[11px] text-[#64748b] mt-0.5">
+                      <div className="flex flex-wrap items-center gap-x-1.5 sm:gap-x-2 gap-y-0.5 text-[10px] sm:text-[11px] text-[#64748b] mt-1">
                         <span className="font-medium text-[#475569]">{tx.walletName}</span>
                         <span>•</span>
                         <span>{formatDateID(tx.transactionDate)}</span>
                         {tx.locationName && (
                           <>
                             <span>•</span>
-                            <span className="flex items-center gap-1 text-[#475569]">
-                              <MapPin className="h-3 w-3 text-[#94a3b8]" />
-                              {tx.locationName}
+                            <span className="inline-flex items-center gap-1 text-[#475569] truncate max-w-[130px] sm:max-w-none">
+                              <MapPin className="h-3 w-3 text-[#94a3b8] shrink-0" />
+                              <span className="truncate">{tx.locationName}</span>
                             </span>
                           </>
                         )}
@@ -153,16 +153,22 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                     </div>
                   </div>
 
-                  <div className="text-right">
+                  <div className="text-right shrink-0">
                     <span
-                      className={`text-base font-bold font-mono tracking-tight ${
+                      className={`text-sm sm:text-base font-bold font-mono tracking-tight whitespace-nowrap block ${
                         isIncome ? 'text-[#16a34a]' : 'text-[#0f172a]'
                       }`}
                     >
                       {isIncome ? '+' : '-'} {formatRupiah(tx.totalAmount)}
                     </span>
-                    <div className="mt-0.5">
-                      <span className="inline-block rounded-md bg-[#f1f5f9] px-2 py-0.5 text-[10px] font-bold text-[#64748b]">
+                    <div className="mt-0.5 flex justify-end">
+                      <span
+                        className={`inline-block rounded-md px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[10px] font-bold ${
+                          isIncome
+                            ? 'bg-[#f0fdf4] text-[#16a34a] border border-[#bbf7d0]'
+                            : 'bg-[#fff1f2] text-[#e11d48] border border-[#fecdd3]'
+                        }`}
+                      >
                         {tx.type}
                       </span>
                     </div>
@@ -179,20 +185,20 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                       {tx.items.map((item) => (
                         <div
                           key={item.id}
-                          className="flex items-center justify-between rounded-lg bg-[#f8fafc] p-2.5 border border-[#e2e8f0] text-xs hover:bg-white transition-colors"
+                          className="flex items-center justify-between gap-2 rounded-lg bg-[#f8fafc] p-2 sm:p-2.5 border border-[#e2e8f0] text-xs hover:bg-white transition-colors"
                         >
-                          <div className="space-y-0.5">
-                            <span className="font-bold text-[#0f172a]">
+                          <div className="space-y-1 min-w-0 flex-1">
+                            <span className="font-bold text-[#0f172a] block truncate text-[11px] sm:text-xs">
                               {item.itemName}
                             </span>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] text-[#004ac6] font-bold bg-[#004ac6]/10 px-1.5 py-0.5 rounded">
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <span className="text-[9px] sm:text-[10px] text-[#004ac6] font-bold bg-[#004ac6]/10 px-1.5 py-0.5 rounded shrink-0">
                                 {item.categoryName}
                               </span>
 
                               {/* Nitip Teman Badge */}
                               {item.isFriendOrder && (
-                                <span className="flex items-center gap-1 text-[10px] text-[#d97706] bg-[#fef3c7] border border-[#fde68a] px-1.5 py-0.5 rounded font-bold">
+                                <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] text-[#d97706] bg-[#fef3c7] border border-[#fde68a] px-1.5 py-0.5 rounded font-bold shrink-0">
                                   <UserCheck className="h-3 w-3" />
                                   <span>Nitip {item.friendName}</span>
                                 </span>
@@ -200,8 +206,8 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                             </div>
                           </div>
 
-                          <div className="text-right space-y-1">
-                            <span className="font-mono font-bold text-[#475569]">
+                          <div className="text-right space-y-1 shrink-0">
+                            <span className="font-mono font-bold text-[#475569] text-[11px] sm:text-xs block whitespace-nowrap">
                               {formatRupiah(item.amount)}
                             </span>
                             {item.rating && (
