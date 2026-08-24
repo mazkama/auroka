@@ -12,9 +12,9 @@ describe('Sidebar Component', () => {
     render(<Sidebar />);
 
     expect(screen.getAllByText('Dashboard').length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText('Histori Transaksi')).toBeInTheDocument();
-    expect(screen.getByText('Dompet Digital')).toBeInTheDocument();
-    expect(screen.getByText('Analisis & Laporan')).toBeInTheDocument();
+    expect(screen.getAllByText('Histori Transaksi').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Dompet Digital').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Analisis & Laporan').length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders mobile overlay drawer when isOpenMobile is true', () => {

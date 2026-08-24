@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Wallet, AccountType } from '@/domain/entities/wallet';
-import { X, Plus, Save } from 'lucide-react';
+import { X, Plus, Save, Palette, Sliders } from 'lucide-react';
 
 interface WalletModalProps {
   isOpen: boolean;
@@ -18,7 +18,43 @@ const ACCOUNT_TYPES: { value: AccountType; label: string }[] = [
   { value: 'CASH', label: 'Uang Tunai (Cash)' },
 ];
 
-const COLORS = ['#004ac6', '#006c49', '#ba1a1a', '#784b00', '#2563eb', '#0f172a', '#16a34a', '#d97706'];
+const PRESET_COLORS = [
+  '#004ac6',
+  '#006c49',
+  '#ba1a1a',
+  '#784b00',
+  '#2563eb',
+  '#7c3aed',
+  '#0284c7',
+  '#0f172a',
+  '#16a34a',
+  '#d97706',
+];
+
+function hexToRgb(hex: string): { r: number; g: number; b: number } {
+  let cleanHex = hex.replace('#', '');
+  if (cleanHex.length === 3) {
+    cleanHex = cleanHex
+      .split('')
+      .map((c) => c + c)
+      .join('');
+  }
+  const num = parseInt(cleanHex, 16);
+  if (isNaN(num)) {
+    return { r: 0, g: 74, b: 198 };
+  }
+  return {
+    r: (num >> 16) & 255,
+    g: (num >> 8) & 255,
+    b: num & 255,
+  };
+}
+
+function rgbToHex(r: number, g: number, b: number): string {
+  const clamp = (n: number) => Math.max(0, Math.min(255, Math.round(n)));
+  const toHex = (n: number) => clamp(n).toString(16).padStart(2, '0');
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+}
 
 export const WalletModal: React.FC<WalletModalProps> = ({
   isOpen,
@@ -31,6 +67,8 @@ export const WalletModal: React.FC<WalletModalProps> = ({
   const [balance, setBalance] = useState('');
   const [accountNumber, setAccountNumber] = useState('');
   const [color, setColor] = useState('#004ac6');
+  const [rgb, setRgb] = useState({ r: 0, g: 74, b: 198 });
+  const [showRgbSliders, setShowRgbSliders] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -41,15 +79,28 @@ export const WalletModal: React.FC<WalletModalProps> = ({
       setBalance(walletToEdit.balance.toString());
       setAccountNumber(walletToEdit.accountNumber || '');
       setColor(walletToEdit.color);
+      setRgb(hexToRgb(walletToEdit.color));
     } else {
-      // Reset form on open for new wallet
       setName('');
       setType('BANK');
       setBalance('');
       setAccountNumber('');
       setColor('#004ac6');
+      setRgb({ r: 0, g: 74, b: 198 });
     }
   }, [walletToEdit, isOpen]);
+
+  const handleColorPresetChange = (newHex: string) => {
+    setColor(newHex);
+    setRgb(hexToRgb(newHex));
+  };
+
+  const handleRgbChange = (channel: 'r' | 'g' | 'b', value: number) => {
+    const clamped = Math.max(0, Math.min(255, isNaN(value) ? 0 : value));
+    const nextRgb = { ...rgb, [channel]: clamped };
+    setRgb(nextRgb);
+    setColor(rgbToHex(nextRgb.r, nextRgb.g, nextRgb.b));
+  };
 
   if (!isOpen) return null;
 
@@ -174,24 +225,148 @@ export const WalletModal: React.FC<WalletModalProps> = ({
             </div>
           )}
 
-          <div>
-            <label className="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">
-              Warna Kartu
-            </label>
-            <div className="flex gap-2 flex-wrap">
-              {COLORS.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setColor(c)}
-                  className={`w-8 h-8 rounded-full border-2 transition-transform ${
-                    color === c ? 'border-[#0f172a] scale-110' : 'border-transparent hover:scale-110'
-                  }`}
-                  style={{ backgroundColor: c }}
-                  aria-label={`Pilih warna ${c}`}
-                />
-              ))}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="block text-xs font-semibold text-[#64748b] uppercase tracking-wider">
+                Warna Kartu
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowRgbSliders(!showRgbSliders)}
+                className="flex items-center gap-1 text-[11px] font-bold text-[#004ac6] hover:underline"
+              >
+                <Sliders className="h-3 w-3" />
+                <span>{showRgbSliders ? 'Tampilkan Palet Preset' : 'Pilih Warna Kustom (RGB)'}</span>
+              </button>
             </div>
+
+            {/* Live Color Preview Bar */}
+            <div className="flex items-center justify-between p-3 rounded-xl bg-white border border-[#e2e8f0] shadow-2xs">
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-8 h-8 rounded-xl shadow-inner border border-black/10 transition-colors"
+                  style={{ backgroundColor: color }}
+                />
+                <div>
+                  <span className="text-xs font-bold text-[#0f172a] block font-mono">
+                    rgb({rgb.r}, {rgb.g}, {rgb.b})
+                  </span>
+                  <span className="text-[10px] font-mono text-[#64748b] uppercase">
+                    {color}
+                  </span>
+                </div>
+              </div>
+
+              {/* Native Color Pipette Trigger */}
+              <div className="relative">
+                <input
+                  type="color"
+                  value={color}
+                  onChange={(e) => handleColorPresetChange(e.target.value)}
+                  className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+                  title="Pilih warna kustom dengan Color Picker"
+                />
+                <button
+                  type="button"
+                  className="p-2 rounded-xl bg-[#eff4ff] text-[#004ac6] hover:bg-[#dce9ff] transition-colors"
+                  title="Buka Color Wheel / Eyedropper"
+                >
+                  <Palette className="h-4 w-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* RGB Sliders & Number Controls */}
+            {showRgbSliders ? (
+              <div className="p-4 rounded-xl bg-white border border-[#e2e8f0] space-y-3 animate-in fade-in duration-200">
+                {/* Red Channel */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="font-bold text-rose-600">Red (R): {rgb.r}</span>
+                    <input
+                      type="number"
+                      min="0"
+                      max="255"
+                      value={rgb.r}
+                      onChange={(e) => handleRgbChange('r', parseInt(e.target.value))}
+                      className="w-14 text-right px-1.5 py-0.5 rounded border border-[#cbd5e1] text-xs font-mono font-bold text-rose-600 focus:outline-none focus:border-rose-500"
+                    />
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="255"
+                    value={rgb.r}
+                    onChange={(e) => handleRgbChange('r', parseInt(e.target.value))}
+                    className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-rose-600 bg-rose-100"
+                  />
+                </div>
+
+                {/* Green Channel */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="font-bold text-emerald-600">Green (G): {rgb.g}</span>
+                    <input
+                      type="number"
+                      min="0"
+                      max="255"
+                      value={rgb.g}
+                      onChange={(e) => handleRgbChange('g', parseInt(e.target.value))}
+                      className="w-14 text-right px-1.5 py-0.5 rounded border border-[#cbd5e1] text-xs font-mono font-bold text-emerald-600 focus:outline-none focus:border-emerald-500"
+                    />
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="255"
+                    value={rgb.g}
+                    onChange={(e) => handleRgbChange('g', parseInt(e.target.value))}
+                    className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-emerald-600 bg-emerald-100"
+                  />
+                </div>
+
+                {/* Blue Channel */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="font-bold text-blue-600">Blue (B): {rgb.b}</span>
+                    <input
+                      type="number"
+                      min="0"
+                      max="255"
+                      value={rgb.b}
+                      onChange={(e) => handleRgbChange('b', parseInt(e.target.value))}
+                      className="w-14 text-right px-1.5 py-0.5 rounded border border-[#cbd5e1] text-xs font-mono font-bold text-blue-600 focus:outline-none focus:border-blue-500"
+                    />
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="255"
+                    value={rgb.b}
+                    onChange={(e) => handleRgbChange('b', parseInt(e.target.value))}
+                    className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-blue-600 bg-blue-100"
+                  />
+                </div>
+              </div>
+            ) : (
+              /* Preset Swatches */
+              <div className="flex gap-2 flex-wrap pt-1">
+                {PRESET_COLORS.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => handleColorPresetChange(c)}
+                    className={`w-7 h-7 rounded-full border-2 transition-all ${
+                      color.toLowerCase() === c.toLowerCase()
+                        ? 'border-[#0f172a] scale-110 shadow-md ring-2 ring-[#004ac6]/30'
+                        : 'border-transparent hover:scale-110'
+                    }`}
+                    style={{ backgroundColor: c }}
+                    aria-label={`Pilih warna ${c}`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </form>
 

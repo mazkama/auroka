@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import {
   Menu,
   Bell,
@@ -11,6 +12,10 @@ import {
   Info,
   ArrowRight,
   X,
+  User,
+  Settings,
+  LogOut,
+  ChevronDown,
 } from 'lucide-react';
 
 interface AppHeaderProps {
@@ -24,13 +29,18 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
   const notifRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
 
-  // Close notification popover when clicking outside
+  // Close popovers when clicking outside
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
         setIsNotifOpen(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(e.target as Node)) {
+        setIsProfileOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -189,11 +199,81 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
           </button>
         )}
 
-        {/* User Profile Avatar */}
-        <div className="flex items-center gap-2 pl-2 border-l border-[#c3c6d7]/40">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#004ac6] to-[#2563eb] text-white flex items-center justify-center font-bold text-xs shadow-sm">
-            AU
-          </div>
+        {/* User Profile Avatar with Popover Mini Window */}
+        <div className="relative pl-2 border-l border-[#c3c6d7]/40" ref={profileRef}>
+          <button
+            onClick={() => {
+              setIsProfileOpen(!isProfileOpen);
+              setIsNotifOpen(false);
+            }}
+            aria-label="Buka Menu Profil"
+            className="flex items-center gap-2 p-1 rounded-xl hover:bg-[#eff4ff] transition-all group"
+          >
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#004ac6] to-[#2563eb] text-white flex items-center justify-center font-bold text-xs shadow-sm ring-2 ring-transparent group-hover:ring-[#004ac6]/20 transition-all">
+              AU
+            </div>
+            <ChevronDown
+              className={`hidden md:block h-3.5 w-3.5 text-[#64748b] transition-transform duration-200 ${
+                isProfileOpen ? 'rotate-180 text-[#004ac6]' : 'group-hover:text-[#004ac6]'
+              }`}
+            />
+          </button>
+
+          {/* Profile Mini Window Popover */}
+          {isProfileOpen && (
+            <div className="absolute right-0 top-12 w-64 rounded-2xl bg-white border border-[#e2e8f0] shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+              {/* User Info Header */}
+              <div className="p-4 border-b border-[#f1f5f9] bg-gradient-to-br from-[#f8f9ff] to-[#eff4ff]">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#004ac6] to-[#2563eb] text-white flex items-center justify-center font-bold text-sm shadow-md">
+                    AU
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="font-bold text-sm text-[#0b1c30] truncate">Demo User</h3>
+                      <span className="text-[9px] font-extrabold uppercase bg-[#004ac6]/10 text-[#004ac6] px-1.5 py-0.5 rounded-full border border-[#004ac6]/20">
+                        Pro
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[#64748b] truncate">user@auroka.id</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Menu Links */}
+              <div className="p-2 space-y-1">
+                <Link
+                  href="/profile"
+                  onClick={() => setIsProfileOpen(false)}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#475569] hover:text-[#004ac6] hover:bg-[#eff4ff] transition-all"
+                >
+                  <User className="h-4 w-4 text-[#64748b]" />
+                  <span>Profil Akun</span>
+                </Link>
+
+                <Link
+                  href="/settings"
+                  onClick={() => setIsProfileOpen(false)}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#475569] hover:text-[#004ac6] hover:bg-[#eff4ff] transition-all"
+                >
+                  <Settings className="h-4 w-4 text-[#64748b]" />
+                  <span>Pengaturan</span>
+                </Link>
+              </div>
+
+              {/* Logout Option */}
+              <div className="p-2 border-t border-[#f1f5f9] bg-[#f8fafc]/60">
+                <Link
+                  href="/login"
+                  onClick={() => setIsProfileOpen(false)}
+                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[#ba1a1a] hover:bg-rose-50 transition-all"
+                >
+                  <LogOut className="h-4 w-4 text-[#ba1a1a]" />
+                  <span>Keluar / Logout</span>
+                </Link>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </header>

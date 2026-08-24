@@ -13,7 +13,6 @@ import {
   TrendingUp,
   TrendingDown,
   Scale,
-  PlusCircle,
   ShieldCheck,
 } from 'lucide-react';
 
@@ -24,9 +23,6 @@ export default function DashboardPage() {
     wallets,
     budgets,
     addTransaction,
-    addBudget,
-    editBudget,
-    removeBudget,
   } = useFinance();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -49,16 +45,6 @@ export default function DashboardPage() {
               Pratinjau real-time total kekayaan likuid, pemasukan, pengeluaran & anggaran.
             </p>
           </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 bg-[#004ac6] hover:bg-[#2563eb] text-white px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md shadow-[#004ac6]/20"
-            >
-              <PlusCircle className="h-4 w-4" />
-              <span>Catat Transaksi</span>
-            </button>
-          </div>
         </div>
 
         {/* Liquid Balance & Stats Grid */}
@@ -69,9 +55,9 @@ export default function DashboardPage() {
             <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none transition-transform duration-700 group-hover:scale-110"></div>
             <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-white/5 rounded-full blur-2xl translate-y-1/3 -translate-x-1/4 pointer-events-none"></div>
 
-            {/* 1. Unstretched Batik Kawung Outline Pattern (Masked Out Underneath Wave Area) */}
+            {/* 1. Unstretched Batik Kawung Outline Pattern with Left, Right & Downward Soft Gradient Fade */}
             <svg
-              className="absolute inset-0 w-full h-full opacity-[0.16] pointer-events-none text-white"
+              className="absolute inset-0 w-full h-full opacity-[0.14] pointer-events-none text-white"
               xmlns="http://www.w3.org/2000/svg"
             >
               <defs>
@@ -85,35 +71,40 @@ export default function DashboardPage() {
                   </g>
                 </pattern>
 
-                {/* Mask to ensure wave area has ZERO motif inside it */}
-                <mask id="motif-wave-mask" maskContentUnits="objectBoundingBox">
-                  <rect width="1" height="1" fill="white" />
-                  <path fill="black" d="M 0,0.53 C 0.19,0.75 0.40,0.31 0.61,0.50 C 0.78,0.68 0.88,0.15 1,0.28 L 1,1 L 0,1 Z" />
+                {/* Soft 2D radial gradient mask: subtly fades out on left edge, right edge, and bottom */}
+                <radialGradient id="batik-fade-gradient" cx="50%" cy="20%" r="62%" fx="50%" fy="20%">
+                  <stop offset="0%" stopColor="white" stopOpacity="1" />
+                  <stop offset="40%" stopColor="white" stopOpacity="0.95" />
+                  <stop offset="70%" stopColor="white" stopOpacity="0.45" />
+                  <stop offset="95%" stopColor="white" stopOpacity="0" />
+                </radialGradient>
+                <mask id="motif-fade-mask">
+                  <rect width="100%" height="100%" fill="url(#batik-fade-gradient)" />
                 </mask>
               </defs>
-              <rect width="100%" height="100%" fill="url(#pattern-kawung-bold)" mask="url(#motif-wave-mask)" />
+              <rect width="100%" height="100%" fill="url(#pattern-kawung-bold)" mask="url(#motif-fade-mask)" />
             </svg>
 
-            {/* 2. 2-Layer Sweeping Wave (Lower on Left, Higher on Right) */}
+            {/* 2. Strictly 2-Layer Harmonized Wave (Layer 1: Back, Layer 2: Front) */}
             <svg
-              className="absolute bottom-0 left-0 w-full h-[200px] sm:h-[280px] pointer-events-none text-white"
+              className="absolute bottom-0 left-0 w-full h-[180px] sm:h-[240px] pointer-events-none text-white"
               viewBox="0 0 1440 320"
               xmlns="http://www.w3.org/2000/svg"
               preserveAspectRatio="none"
             >
-              {/* Wave Layer 1 (Back, Slightly Lower on Left) */}
+              {/* Wave Layer 1 (Back, Subtle 10% opacity) */}
               <path
                 fill="currentColor"
                 fillOpacity="0.10"
-                d="M 0,170 C 280,240 580,100 880,160 C 1130,220 1280,50 1440,90 L 1440,320 L 0,320 Z"
-              ></path>
+                d="M 0,160 C 300,240 600,110 900,175 C 1140,230 1290,60 1440,95 L 1440,320 L 0,320 Z"
+              />
 
-              {/* Wave Layer 2 (Front, Slightly Lower on Left) */}
+              {/* Wave Layer 2 (Front, 18% opacity) */}
               <path
                 fill="currentColor"
-                fillOpacity="0.16"
-                d="M 0,200 C 260,265 560,135 860,195 C 1110,255 1260,85 1440,125 L 1440,320 L 0,320 Z"
-              ></path>
+                fillOpacity="0.18"
+                d="M 0,210 C 280,270 580,150 880,210 C 1120,260 1270,100 1440,135 L 1440,320 L 0,320 Z"
+              />
             </svg>
 
             <div className="flex justify-between items-start relative z-10">
@@ -200,9 +191,7 @@ export default function DashboardPage() {
           <div className="space-y-6">
             <BudgetProgress
               budgets={budgets}
-              onAddBudget={addBudget}
-              onEditBudget={editBudget}
-              onDeleteBudget={removeBudget}
+              showManageLink
             />
           </div>
         </div>

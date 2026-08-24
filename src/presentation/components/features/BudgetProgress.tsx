@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { Budget, CreateBudgetDTO, UpdateBudgetDTO } from '@/domain/entities/budget';
 import { formatRupiah } from '@/presentation/utils/formatters';
-import { PieChart, AlertCircle, Plus, Edit2, Trash2 } from 'lucide-react';
+import { PieChart, AlertCircle, Plus, Edit2, Trash2, ArrowRight } from 'lucide-react';
 import { BudgetModal } from './BudgetModal';
 
 interface BudgetProgressProps {
@@ -11,6 +12,7 @@ interface BudgetProgressProps {
   onAddBudget?: (dto: CreateBudgetDTO) => Promise<void>;
   onEditBudget?: (dto: UpdateBudgetDTO) => Promise<void>;
   onDeleteBudget?: (id: string) => Promise<void>;
+  showManageLink?: boolean;
 }
 
 export const BudgetProgress: React.FC<BudgetProgressProps> = ({
@@ -18,6 +20,7 @@ export const BudgetProgress: React.FC<BudgetProgressProps> = ({
   onAddBudget,
   onEditBudget,
   onDeleteBudget,
+  showManageLink = false,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
@@ -47,7 +50,15 @@ export const BudgetProgress: React.FC<BudgetProgressProps> = ({
           <h2 className="text-lg font-bold text-[#0f172a]">Anggaran Bulanan</h2>
         </div>
 
-        {onAddBudget && (
+        {showManageLink ? (
+          <Link
+            href="/wallets"
+            className="flex items-center gap-1 bg-[#eff4ff] hover:bg-[#dce9ff] text-[#004ac6] border border-[#004ac6]/20 px-2.5 py-1 rounded-xl text-xs font-bold transition-all shadow-2xs"
+          >
+            <span>Kelola</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        ) : onAddBudget ? (
           <button
             onClick={handleOpenAdd}
             className="flex items-center gap-1 bg-[#eff4ff] hover:bg-[#dce9ff] text-[#004ac6] border border-[#004ac6]/20 px-2.5 py-1 rounded-xl text-xs font-bold transition-all shadow-2xs"
@@ -55,7 +66,7 @@ export const BudgetProgress: React.FC<BudgetProgressProps> = ({
             <Plus className="h-3.5 w-3.5" />
             <span>Set Anggaran</span>
           </button>
-        )}
+        ) : null}
       </div>
 
       {/* List */}
@@ -63,14 +74,22 @@ export const BudgetProgress: React.FC<BudgetProgressProps> = ({
         {budgets.length === 0 ? (
           <div className="py-6 text-center text-xs text-[#64748b] bg-[#f8fafc] rounded-xl border border-dashed border-[#cbd5e1]">
             <p>Belum ada batas anggaran yang diatur.</p>
-            {onAddBudget && (
+            {showManageLink ? (
+              <Link
+                href="/wallets"
+                className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-[#004ac6] hover:underline"
+              >
+                <span>Atur Anggaran di Dompet Digital</span>
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            ) : onAddBudget ? (
               <button
                 onClick={handleOpenAdd}
                 className="mt-2 text-xs font-bold text-[#004ac6] hover:underline"
               >
                 + Buat Anggaran Pertama
               </button>
-            )}
+            ) : null}
           </div>
         ) : (
           budgets.map((budget) => {

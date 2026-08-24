@@ -52,7 +52,9 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [type, setType] = useState<TransactionType>('OUT');
-  const [category, setCategory] = useState<Category>('Makan & Minum');
+  const [category, setCategory] = useState<string>('Makan & Minum');
+  const [customCategory, setCustomCategory] = useState('');
+  const [isCustomCategory, setIsCustomCategory] = useState(false);
   const [walletId, setWalletId] = useState(wallets[0]?.id || 'w-1');
   const [locationName, setLocationName] = useState('');
   const [isFriendOrder, setIsFriendOrder] = useState(false);
@@ -67,6 +69,12 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     e.preventDefault();
     if (!title || !amount) {
       setError('Judul dan nominal transaksi wajib diisi');
+      return;
+    }
+
+    const finalCategory = (isCustomCategory ? customCategory.trim() : category) || 'Lainnya';
+    if (isCustomCategory && !customCategory.trim()) {
+      setError('Nama kategori kustom wajib diisi');
       return;
     }
 
@@ -91,7 +99,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
           {
             itemName: title,
             categoryId: 'c-1',
-            categoryName: category,
+            categoryName: finalCategory as Category,
             amount: numAmount,
             isFriendOrder,
             friendName: isFriendOrder ? friendName : undefined,
@@ -107,6 +115,8 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
       setLocationName('');
       setIsFriendOrder(false);
       setFriendName('');
+      setCustomCategory('');
+      setIsCustomCategory(false);
       onClose();
     } catch (err: unknown) {
       setError(
@@ -217,22 +227,57 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">
-                Kategori
-              </label>
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value as Category)}
-                className="w-full rounded-xl bg-white border border-[#e2e8f0] px-3.5 py-2.5 text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 focus:border-[#004ac6] transition-shadow text-sm"
-              >
-                {CATEGORIES.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-xs font-semibold text-[#64748b] uppercase tracking-wider">
+                  Kategori
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsCustomCategory(!isCustomCategory);
+                    if (!isCustomCategory) {
+                      setCustomCategory('');
+                    }
+                  }}
+                  className="text-[10px] font-bold text-[#004ac6] hover:underline"
+                >
+                  {isCustomCategory ? '← Pilih Preset' : '+ Tulis Sendiri'}
+                </button>
+              </div>
+
+              {isCustomCategory ? (
+                <input
+                  type="text"
+                  placeholder="Kategori baru (cth: Hewan Peliharaan)"
+                  value={customCategory}
+                  onChange={(e) => setCustomCategory(e.target.value)}
+                  autoFocus
+                  required
+                  className="w-full rounded-xl bg-white border border-[#004ac6] px-3.5 py-2.5 text-[#0f172a] placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 transition-shadow text-sm"
+                />
+              ) : (
+                <select
+                  value={category}
+                  onChange={(e) => {
+                    if (e.target.value === '__CUSTOM__') {
+                      setIsCustomCategory(true);
+                      setCustomCategory('');
+                    } else {
+                      setCategory(e.target.value);
+                    }
+                  }}
+                  className="w-full rounded-xl bg-white border border-[#e2e8f0] px-3.5 py-2.5 text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 focus:border-[#004ac6] transition-shadow text-sm"
+                >
+                  {CATEGORIES.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat}
+                    </option>
+                  ))}
+                  <option value="__CUSTOM__">✍️ + Tulis Kategori Sendiri...</option>
+                </select>
+              )}
             </div>
 
             <div>

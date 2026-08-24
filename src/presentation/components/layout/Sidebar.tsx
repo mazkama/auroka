@@ -145,44 +145,54 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </div>
       </aside>
 
-      {/* 2. Mobile Drawer Overlay (<1024px / lg) */}
-      {isOpenMobile && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          {/* Backdrop Blur */}
-          <div
-            className="fixed inset-0 bg-[#0b1c30]/50 backdrop-blur-sm transition-opacity"
-            onClick={onCloseMobile}
-            aria-hidden="true"
-          />
+      {/* 2. Mobile Drawer Overlay (<1024px / lg) with Smooth Animation */}
+      <div
+        className={`fixed inset-0 z-50 lg:hidden transition-all duration-300 ${
+          isOpenMobile
+            ? 'opacity-100 pointer-events-auto visible'
+            : 'opacity-0 pointer-events-none invisible'
+        }`}
+      >
+        {/* Backdrop Blur Fade */}
+        <div
+          className={`fixed inset-0 bg-[#0b1c30]/50 backdrop-blur-xs transition-opacity duration-300 ease-out ${
+            isOpenMobile ? 'opacity-100' : 'opacity-0'
+          }`}
+          onClick={onCloseMobile}
+          aria-hidden="true"
+        />
 
-          {/* Drawer Content */}
-          <aside className="fixed inset-y-0 left-0 w-72 max-w-[80vw] bg-white p-4 shadow-2xl z-50 transform transition-transform duration-300 ease-in-out flex flex-col justify-between">
-            <div className="space-y-4">
-              <div className="flex items-center justify-between px-2 pt-2 border-b border-[#c3c6d7]/40 pb-3">
-                <div className="flex items-center gap-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#004ac6] text-white shadow-sm">
-                    <Coins className="h-4 w-4" />
-                  </div>
-                  <span className="font-extrabold text-base text-[#004ac6]">
-                    Auroka
-                  </span>
+        {/* Drawer Content with Smooth Slide Animation */}
+        <aside
+          className={`fixed inset-y-0 left-0 w-72 max-w-[80vw] bg-white p-4 shadow-2xl z-50 transform transition-transform duration-300 ease-out flex flex-col justify-between overflow-y-auto ${
+            isOpenMobile ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
+          <div className="space-y-4">
+            <div className="flex items-center justify-between px-2 pt-2 border-b border-[#c3c6d7]/40 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#004ac6] text-white shadow-sm">
+                  <Coins className="h-4 w-4" />
                 </div>
-                <button
-                  onClick={onCloseMobile}
-                  className="p-1.5 rounded-lg text-[#434655] hover:bg-[#eff4ff]"
-                  aria-label="Tutup Menu"
-                >
-                  <X className="h-5 w-5" />
-                </button>
+                <span className="font-extrabold text-base text-[#004ac6]">
+                  Auroka
+                </span>
               </div>
-
-              {renderNavLinks()}
+              <button
+                onClick={onCloseMobile}
+                className="p-1.5 rounded-lg text-[#434655] hover:bg-[#eff4ff] transition-colors"
+                aria-label="Tutup Menu"
+              >
+                <X className="h-5 w-5" />
+              </button>
             </div>
 
-            {renderFooterCards()}
-          </aside>
-        </div>
-      )}
+            {renderNavLinks()}
+          </div>
+
+          {renderFooterCards()}
+        </aside>
+      </div>
 
       {/* 3. Mobile Bottom Navigation Bar (<1024px / lg) - 5 Items with Center Floating Action Button */}
       <nav

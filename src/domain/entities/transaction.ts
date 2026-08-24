@@ -9,7 +9,8 @@ export type Category =
   | 'Transportasi'
   | 'Hiburan'
   | 'Kesehatan'
-  | 'Lainnya';
+  | 'Lainnya'
+  | (string & {});
 
 export interface TransactionItem {
   id: string;
