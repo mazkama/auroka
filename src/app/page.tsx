@@ -40,7 +40,7 @@ export default function LandingPage() {
 
         {/* Hero Title */}
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-[#0b1c30] mb-6 max-w-4xl mx-auto leading-tight">
-          Kelola Keuangan Lebih Mudah dan akurat crotnya<br className="hidden sm:block" />
+          Kelola Keuangan Lebih Mudah dan akurat se akurat pendik<br className="hidden sm:block" />
           <span className="bg-gradient-to-r from-[#004ac6] via-[#2563eb] to-[#784b00] bg-clip-text text-transparent">
             Kapan Saja, Di Mana Saja.
           </span>
