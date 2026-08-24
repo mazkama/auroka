@@ -54,6 +54,34 @@ export const INITIAL_WALLETS: Wallet[] = [
     iconName: 'Banknote',
     color: '#f59e0b',
   },
+  {
+    id: 'w-6',
+    userId: CURRENT_USER_ID,
+    name: 'Tunai Cadangan',
+    type: 'CASH',
+    balance: 500000,
+    iconName: 'Banknote',
+    color: '#10b981',
+  },
+  {
+    id: 'w-7',
+    userId: CURRENT_USER_ID,
+    name: 'Tabungan Darurat',
+    type: 'BANK',
+    balance: 10000000,
+    accountNumber: '9988776655',
+    iconName: 'Building2',
+    color: '#004ac6',
+  },
+  {
+    id: 'w-8',
+    userId: CURRENT_USER_ID,
+    name: 'ShopeePay',
+    type: 'E_WALLET',
+    balance: 350000,
+    iconName: 'Smartphone',
+    color: '#ee4d2d',
+  },
 ];
 
 export const INITIAL_TRANSACTIONS: Transaction[] = [
