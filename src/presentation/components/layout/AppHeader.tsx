@@ -135,56 +135,64 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
           {/* Notification Popover Dropdown Window */}
           {isNotifOpen && (
-            <div className="absolute right-0 top-12 w-80 sm:w-96 rounded-2xl bg-white border border-[#e2e8f0] shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-              {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-[#f1f5f9] bg-[#f8fafc]">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-sm text-[#0f172a]">Notifikasi Keuangan</h3>
-                  <span className="bg-[#004ac6]/10 text-[#004ac6] text-[10px] font-bold px-2 py-0.5 rounded-full">
-                    3 Baru
-                  </span>
-                </div>
-                <button
-                  onClick={() => setIsNotifOpen(false)}
-                  className="p-1 rounded-lg text-[#64748b] hover:bg-[#e2e8f0] transition-colors"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
+            <>
+              {/* Mobile Backdrop */}
+              <div
+                className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[1px] sm:hidden"
+                onClick={() => setIsNotifOpen(false)}
+              />
 
-              {/* Notification List */}
-              <div className="divide-y divide-[#f1f5f9] max-h-80 overflow-y-auto">
-                {sampleNotifications.map((notif) => (
-                  <div
-                    key={notif.id}
-                    className="p-3.5 flex items-start gap-3 hover:bg-[#f8fafc] transition-colors cursor-pointer"
-                  >
-                    <div className={`p-2 rounded-xl ${notif.bgColor} ${notif.iconColor} shrink-0 mt-0.5`}>
-                      <notif.icon className="h-4 w-4" />
-                    </div>
-                    <div className="flex-1 space-y-1">
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-xs font-bold text-[#0f172a]">{notif.title}</h4>
-                        <span className="text-[10px] text-[#94a3b8]">{notif.time}</span>
-                      </div>
-                      <p className="text-xs text-[#64748b] leading-relaxed">{notif.desc}</p>
-                    </div>
+              <div className="fixed inset-x-3 top-16 sm:absolute sm:inset-auto sm:right-0 sm:top-12 sm:w-96 rounded-2xl bg-white border border-[#e2e8f0] shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                {/* Header */}
+                <div className="flex items-center justify-between p-4 border-b border-[#f1f5f9] bg-[#f8fafc]">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-sm text-[#0f172a]">Notifikasi Keuangan</h3>
+                    <span className="bg-[#004ac6]/10 text-[#004ac6] text-[10px] font-bold px-2 py-0.5 rounded-full">
+                      3 Baru
+                    </span>
                   </div>
-                ))}
-              </div>
+                  <button
+                    onClick={() => setIsNotifOpen(false)}
+                    className="p-1 rounded-lg text-[#64748b] hover:bg-[#e2e8f0] transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
 
-              {/* Footer CTA Button to View All Notifications */}
-              <div className="p-3 bg-[#f8fafc] border-t border-[#f1f5f9]">
-                <a
-                  href="/transactions"
-                  onClick={() => setIsNotifOpen(false)}
-                  className="w-full flex items-center justify-center gap-2 bg-white border border-[#e2e8f0] hover:border-[#004ac6] text-[#004ac6] hover:bg-[#eff4ff] py-2 rounded-xl text-xs font-bold transition-all shadow-sm group"
-                >
-                  <span>Lihat Semua Pusat Notifikasi</span>
-                  <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
-                </a>
+                {/* Notification List */}
+                <div className="divide-y divide-[#f1f5f9] max-h-[60vh] sm:max-h-80 overflow-y-auto">
+                  {sampleNotifications.map((notif) => (
+                    <div
+                      key={notif.id}
+                      className="p-3.5 flex items-start gap-3 hover:bg-[#f8fafc] transition-colors cursor-pointer"
+                    >
+                      <div className={`p-2 rounded-xl ${notif.bgColor} ${notif.iconColor} shrink-0 mt-0.5`}>
+                        <notif.icon className="h-4 w-4" />
+                      </div>
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center justify-between">
+                          <h4 className="text-xs font-bold text-[#0f172a]">{notif.title}</h4>
+                          <span className="text-[10px] text-[#94a3b8]">{notif.time}</span>
+                        </div>
+                        <p className="text-xs text-[#64748b] leading-relaxed">{notif.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Footer CTA Button to View All Notifications */}
+                <div className="p-3 bg-[#f8fafc] border-t border-[#f1f5f9]">
+                  <a
+                    href="/transactions"
+                    onClick={() => setIsNotifOpen(false)}
+                    className="w-full flex items-center justify-center gap-2 bg-white border border-[#e2e8f0] hover:border-[#004ac6] text-[#004ac6] hover:bg-[#eff4ff] py-2 rounded-xl text-xs font-bold transition-all shadow-sm group"
+                  >
+                    <span>Lihat Semua Pusat Notifikasi</span>
+                    <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                  </a>
+                </div>
               </div>
-            </div>
+            </>
           )}
         </div>
 
@@ -221,58 +229,66 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
           {/* Profile Mini Window Popover */}
           {isProfileOpen && (
-            <div className="absolute right-0 top-12 w-64 rounded-2xl bg-white border border-[#e2e8f0] shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
-              {/* User Info Header */}
-              <div className="p-4 border-b border-[#f1f5f9] bg-gradient-to-br from-[#f8f9ff] to-[#eff4ff]">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#004ac6] to-[#2563eb] text-white flex items-center justify-center font-bold text-sm shadow-md">
-                    AU
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-1.5">
-                      <h3 className="font-bold text-sm text-[#0b1c30] truncate">Demo User</h3>
-                      <span className="text-[9px] font-extrabold uppercase bg-[#004ac6]/10 text-[#004ac6] px-1.5 py-0.5 rounded-full border border-[#004ac6]/20">
-                        Pro
-                      </span>
+            <>
+              {/* Mobile Backdrop */}
+              <div
+                className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[1px] sm:hidden"
+                onClick={() => setIsProfileOpen(false)}
+              />
+
+              <div className="fixed right-3 top-16 w-64 max-w-[calc(100vw-24px)] sm:absolute sm:right-0 sm:top-12 sm:w-64 rounded-2xl bg-white border border-[#e2e8f0] shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+                {/* User Info Header */}
+                <div className="p-4 border-b border-[#f1f5f9] bg-gradient-to-br from-[#f8f9ff] to-[#eff4ff]">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#004ac6] to-[#2563eb] text-white flex items-center justify-center font-bold text-sm shadow-md">
+                      AU
                     </div>
-                    <p className="text-[11px] text-[#64748b] truncate">user@auroka.id</p>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <h3 className="font-bold text-sm text-[#0b1c30] truncate">Demo User</h3>
+                        <span className="text-[9px] font-extrabold uppercase bg-[#004ac6]/10 text-[#004ac6] px-1.5 py-0.5 rounded-full border border-[#004ac6]/20">
+                          Pro
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-[#64748b] truncate">user@auroka.id</p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Menu Links */}
-              <div className="p-2 space-y-1">
-                <Link
-                  href="/profile"
-                  onClick={() => setIsProfileOpen(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#475569] hover:text-[#004ac6] hover:bg-[#eff4ff] transition-all"
-                >
-                  <User className="h-4 w-4 text-[#64748b]" />
-                  <span>Profil Akun</span>
-                </Link>
+                {/* Menu Links */}
+                <div className="p-2 space-y-1">
+                  <Link
+                    href="/profile"
+                    onClick={() => setIsProfileOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#475569] hover:text-[#004ac6] hover:bg-[#eff4ff] transition-all"
+                  >
+                    <User className="h-4 w-4 text-[#64748b]" />
+                    <span>Profil Akun</span>
+                  </Link>
 
-                <Link
-                  href="/settings"
-                  onClick={() => setIsProfileOpen(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#475569] hover:text-[#004ac6] hover:bg-[#eff4ff] transition-all"
-                >
-                  <Settings className="h-4 w-4 text-[#64748b]" />
-                  <span>Pengaturan</span>
-                </Link>
-              </div>
+                  <Link
+                    href="/settings"
+                    onClick={() => setIsProfileOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#475569] hover:text-[#004ac6] hover:bg-[#eff4ff] transition-all"
+                  >
+                    <Settings className="h-4 w-4 text-[#64748b]" />
+                    <span>Pengaturan</span>
+                  </Link>
+                </div>
 
-              {/* Logout Option */}
-              <div className="p-2 border-t border-[#f1f5f9] bg-[#f8fafc]/60">
-                <Link
-                  href="/login"
-                  onClick={() => setIsProfileOpen(false)}
-                  className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[#ba1a1a] hover:bg-rose-50 transition-all"
-                >
-                  <LogOut className="h-4 w-4 text-[#ba1a1a]" />
-                  <span>Keluar / Logout</span>
-                </Link>
+                {/* Logout Option */}
+                <div className="p-2 border-t border-[#f1f5f9] bg-[#f8fafc]/60">
+                  <Link
+                    href="/login"
+                    onClick={() => setIsProfileOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[#ba1a1a] hover:bg-rose-50 transition-all"
+                  >
+                    <LogOut className="h-4 w-4 text-[#ba1a1a]" />
+                    <span>Keluar / Logout</span>
+                  </Link>
+                </div>
               </div>
-            </div>
+            </>
           )}
         </div>
       </div>
