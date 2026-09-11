@@ -107,8 +107,13 @@ export const DashboardOverview: React.FC = () => {
       {/* Main Grid Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
-          <WalletCards wallets={wallets} />
-          <RecentTransactions transactions={transactions} />
+          <WalletCards wallets={wallets} maxDisplay={6} showManageLink />
+          <RecentTransactions
+            transactions={transactions}
+            maxDisplay={5}
+            enablePagination={false}
+            showManageLink
+          />
         </div>
 
         <div className="space-y-6">

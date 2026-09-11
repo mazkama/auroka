@@ -52,7 +52,7 @@ export const BudgetProgress: React.FC<BudgetProgressProps> = ({
 
         {showManageLink ? (
           <Link
-            href="/wallets"
+            href="/wallets#anggaran-bulanan"
             className="flex items-center gap-1 bg-[#eff4ff] hover:bg-[#dce9ff] text-[#004ac6] border border-[#004ac6]/20 px-2.5 py-1 rounded-xl text-xs font-bold transition-all shadow-2xs"
           >
             <span>Kelola</span>
@@ -76,7 +76,7 @@ export const BudgetProgress: React.FC<BudgetProgressProps> = ({
             <p>Belum ada batas anggaran yang diatur.</p>
             {showManageLink ? (
               <Link
-                href="/wallets"
+                href="/wallets#anggaran-bulanan"
                 className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-[#004ac6] hover:underline"
               >
                 <span>Atur Anggaran di Dompet Digital</span>

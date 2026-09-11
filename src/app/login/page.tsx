@@ -5,13 +5,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { mockLogin } from '@/infrastructure/mock/mockAuth';
 import { apiLogin } from '@/infrastructure/api/authApi';
-import { Coins, Lock, Mail, ArrowRight, ShieldCheck, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Coins, Lock, Mail, ArrowRight, ShieldCheck, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { AuthLoadingOverlay } from '@/presentation/components/ui/AuthLoadingOverlay';
 
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showLoadingOverlay, setShowLoadingOverlay] = useState(false);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
 
@@ -48,7 +50,7 @@ export default function LoginPage() {
       setLoading(true);
       try {
         await apiLogin(email, password);
-        router.push('/dashboard');
+        setShowLoadingOverlay(true);
         return;
       } catch (apiErr: unknown) {
         if (
@@ -61,13 +63,16 @@ export default function LoginPage() {
         }
         const user = await mockLogin(email, password);
         localStorage.setItem('auroka_user', JSON.stringify(user));
-        router.push('/dashboard');
+        setShowLoadingOverlay(true);
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Gagal melakukan login');
-    } finally {
       setLoading(false);
     }
+  };
+
+  const handleLoadingComplete = () => {
+    router.push('/dashboard');
   };
 
   return (
@@ -176,10 +181,19 @@ export default function LoginPage() {
                 data-testid="login-submit"
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 bg-[#004ac6] hover:bg-[#2563eb] text-white py-3 rounded-xl font-bold text-xs shadow-lg shadow-[#004ac6]/20 hover:shadow-xl transition-all disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 bg-[#004ac6] hover:bg-[#2563eb] text-white py-3 rounded-xl font-bold text-xs shadow-lg shadow-[#004ac6]/20 hover:shadow-xl transition-all disabled:opacity-75"
               >
-                <span>{loading ? 'Memverifikasi Sesi...' : 'Masuk ke Dashboard'}</span>
-                <ArrowRight className="h-4 w-4" />
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Memproses Sesi...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Masuk ke Dashboard</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
               </button>
             </div>
             
@@ -221,6 +235,13 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
+
+      {/* Modern Auroka Frosted Loading Overlay */}
+      <AuthLoadingOverlay
+        isOpen={showLoadingOverlay}
+        onComplete={handleLoadingComplete}
+        title="Masuk ke Auroka"
+      />
     </div>
   );
 }

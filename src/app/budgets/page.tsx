@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
 
 export default function BudgetsPage() {
-  redirect('/wallets');
+  redirect('/wallets#anggaran-bulanan');
 }

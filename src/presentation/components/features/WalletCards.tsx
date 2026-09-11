@@ -59,7 +59,7 @@ export const WalletCards: React.FC<WalletCardsProps> = ({
           {(showManageLink || remainingCount > 0) && (
             <Link
               href="/wallets"
-              className="inline-flex items-center gap-1 text-xs font-bold text-[#004ac6] hover:underline"
+              className="flex items-center gap-1.5 bg-[#eff4ff] hover:bg-[#dce9ff] text-[#004ac6] border border-[#004ac6]/20 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-2xs"
             >
               <span>Kelola Dompet</span>
               <ArrowRight className="h-3.5 w-3.5" />
@@ -145,24 +145,6 @@ export const WalletCards: React.FC<WalletCardsProps> = ({
           );
         })}
       </div>
-
-      {remainingCount > 0 && (
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 p-4 rounded-2xl bg-white border border-[#e2e8f0] shadow-xs">
-          <div className="flex items-center gap-2.5 text-xs text-[#434655]">
-            <span className="flex h-2.5 w-2.5 rounded-full bg-[#004ac6] shrink-0" />
-            <span>
-              Ada <strong className="text-[#0f172a]">+{remainingCount} dompet lainnya</strong> yang tidak ditampilkan di dashboard.
-            </span>
-          </div>
-          <Link
-            href="/wallets"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#eff4ff] hover:bg-[#dce9ff] text-[#004ac6] text-xs font-bold transition-colors"
-          >
-            <span>Kelola di Dompet Digital</span>
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
-      )}
     </div>
   );
 };

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppLayout } from '@/presentation/components/layout/AppLayout';
 import { useFinance } from '@/presentation/hooks/useFinance';
 import { formatRupiah } from '@/presentation/utils/formatters';
@@ -38,6 +38,31 @@ export default function WalletsPage() {
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [walletToEdit, setWalletToEdit] = useState<Wallet | null>(null);
   const [walletToDelete, setWalletToDelete] = useState<Wallet | null>(null);
+  const [highlightBudget, setHighlightBudget] = useState(false);
+
+  useEffect(() => {
+    const handleHashNavigation = () => {
+      if (typeof window !== 'undefined' && window.location.hash === '#anggaran-bulanan') {
+        const element = document.getElementById('anggaran-bulanan');
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          setHighlightBudget(true);
+          const timer = setTimeout(() => {
+            setHighlightBudget(false);
+          }, 2500);
+          return () => clearTimeout(timer);
+        }
+      }
+    };
+
+    const timeout = setTimeout(handleHashNavigation, 150);
+    window.addEventListener('hashchange', handleHashNavigation);
+
+    return () => {
+      clearTimeout(timeout);
+      window.removeEventListener('hashchange', handleHashNavigation);
+    };
+  }, []);
 
   const monthlyIncome = summary?.monthlyIncome || 18500000;
   const totalBalance = summary?.totalBalance || wallets.reduce((acc, w) => acc + w.balance, 0);
@@ -140,7 +165,7 @@ export default function WalletsPage() {
         </div>
 
         {/* Section 2: Alokasi & Pengawasan Anggaran Bulanan */}
-        <div className="space-y-4 pt-2">
+        <div id="anggaran-bulanan" className="space-y-4 pt-2 scroll-mt-24">
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-2">
               <PieIcon className="h-4 w-4 text-[#004ac6]" />
@@ -155,12 +180,18 @@ export default function WalletsPage() {
           <BudgetAllocationChart budgets={budgets} monthlyIncome={monthlyIncome} />
 
           {/* Detailed Category Progress Bars & Full CRUD Controls */}
-          <BudgetProgress
-            budgets={budgets}
-            onAddBudget={addBudget}
-            onEditBudget={editBudget}
-            onDeleteBudget={removeBudget}
-          />
+          <div
+            className={`transition-all duration-700 rounded-2xl ${
+              highlightBudget ? 'ring-4 ring-[#004ac6]/40 shadow-xl scale-[1.005]' : ''
+            }`}
+          >
+            <BudgetProgress
+              budgets={budgets}
+              onAddBudget={addBudget}
+              onEditBudget={editBudget}
+              onDeleteBudget={removeBudget}
+            />
+          </div>
         </div>
       </div>
 

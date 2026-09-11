@@ -88,7 +88,7 @@ export default function LandingPage() {
             className="w-full sm:w-auto bg-white border border-[#004ac6] text-[#004ac6] px-8 py-3.5 rounded-xl font-bold text-sm hover:bg-[#eff4ff] transition-all flex items-center justify-center gap-2 shadow-sm"
           >
             <LogIn className="h-4 w-4" />
-            <span>Masuk Akun Demo</span>
+            <span>Masuk ke Akun</span>
           </Link>
         </div>
 
@@ -294,7 +294,7 @@ export default function LandingPage() {
               Siap Memulai Perjalanan Keuangan Anda?
             </h2>
             <p className="text-sm text-white/90">
-              Daftar akun baru sekarang atau masuk menggunakan akun demo terintegrasi.
+              Daftar akun baru sekarang atau masuk ke akun Anda untuk mulai mengelola keuangan secara profesional.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
               <Link
@@ -309,7 +309,7 @@ export default function LandingPage() {
                 className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#004ac6] border border-white/40 text-white px-8 py-3.5 rounded-xl font-bold text-sm hover:bg-white/10 transition-colors"
               >
                 <LogIn className="h-4 w-4" />
-                <span>Masuk Akun Demo</span>
+                <span>Masuk ke Akun</span>
               </Link>
             </div>
           </div>

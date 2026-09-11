@@ -13,7 +13,7 @@ export interface MockUserRecord extends UserProfile {
 export const INITIAL_MOCK_USERS: MockUserRecord[] = [
   {
     id: 'usr-auroka-001',
-    name: 'Demo Auroka User',
+    name: 'Auroka User',
     email: 'user@auroka.id',
     passwordHash: 'password123',
     role: 'PRO_MEMBER',
@@ -48,7 +48,7 @@ export const mockLogin = async (email: string, pass: string): Promise<UserProfil
   );
 
   if (!foundUser || foundUser.passwordHash !== pass) {
-    throw new Error('Email atau password salah. Gunakan akun demo: user@auroka.id / password123');
+    throw new Error('Email atau kata sandi tidak sesuai. Silakan periksa kembali kredensial Anda.');
   }
 
   return {

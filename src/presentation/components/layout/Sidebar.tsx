@@ -25,12 +25,14 @@ interface SidebarProps {
   isOpenMobile?: boolean;
   onCloseMobile?: () => void;
   onOpenAddModal?: () => void;
+  onLogout?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   isOpenMobile = false,
   onCloseMobile,
   onOpenAddModal,
+  onLogout,
 }) => {
   const pathname = usePathname();
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -133,14 +135,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <p className="text-[10px] text-[#434655]">{user ? user.email : 'user@auroka.id'}</p>
           </div>
         </div>
-        <Link
-          href="/login"
+        <button
+          type="button"
           title="Keluar / Switch User"
-          onClick={() => logout()}
-          className="p-1.5 rounded-lg text-[#434655] hover:text-[#ba1a1a] hover:bg-rose-50"
+          onClick={() => {
+            if (onLogout) {
+              onLogout();
+            } else {
+              logout();
+              window.location.href = '/login';
+            }
+          }}
+          className="p-1.5 rounded-lg text-[#434655] hover:text-[#ba1a1a] hover:bg-rose-50 transition-colors"
         >
           <LogOut className="h-4 w-4" />
-        </Link>
+        </button>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import Link from 'next/link';
 import { Transaction } from '@/domain/entities/transaction';
 import { formatRupiah, formatDateID } from '@/presentation/utils/formatters';
 import {
@@ -15,12 +16,15 @@ import {
   SlidersHorizontal,
   Edit2,
   Trash2,
+  ArrowRight,
 } from 'lucide-react';
 
 interface RecentTransactionsProps {
   transactions: Transaction[];
   enablePagination?: boolean;
   initialItemsPerPage?: number;
+  maxDisplay?: number;
+  showManageLink?: boolean;
   onEdit?: (tx: Transaction) => void;
   onDelete?: (id: string) => void;
 }
@@ -29,6 +33,8 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
   transactions,
   enablePagination = true,
   initialItemsPerPage = 5,
+  maxDisplay,
+  showManageLink = false,
   onEdit,
   onDelete,
 }) => {
@@ -59,12 +65,15 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
   // Ensure current page stays within valid bounds
   const validCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
 
-  // Slice paginated transactions
+  // Slice paginated or max-display transactions
   const displayedTransactions = useMemo(() => {
+    if (showManageLink && maxDisplay) {
+      return filteredTransactions.slice(0, maxDisplay);
+    }
     if (!enablePagination) return filteredTransactions;
     const startIndex = (validCurrentPage - 1) * itemsPerPage;
     return filteredTransactions.slice(startIndex, startIndex + itemsPerPage);
-  }, [filteredTransactions, enablePagination, validCurrentPage, itemsPerPage]);
+  }, [filteredTransactions, showManageLink, maxDisplay, enablePagination, validCurrentPage, itemsPerPage]);
 
   const startIndex = (validCurrentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(validCurrentPage * itemsPerPage, filteredTransactions.length);
@@ -81,31 +90,43 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
 
   return (
     <div className="rounded-2xl bg-white border border-[#e2e8f0] p-4 sm:p-5 space-y-4 shadow-sm overflow-hidden">
-      {/* Header & Search Controls */}
+      {/* Header & Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-bold text-[#0f172a]">Histori Ledger Transaksi</h2>
+            <h2 className="text-lg font-bold text-[#0f172a]">Histori Transaksi Terakhir</h2>
             <span className="text-[10px] font-bold bg-[#004ac6]/10 text-[#004ac6] border border-[#004ac6]/20 px-2 py-0.5 rounded-full">
-              Header-Detail ERD
+              {showManageLink ? 'Ringkasan' : 'Header-Detail ERD'}
             </span>
           </div>
           <p className="text-xs text-[#64748b]">
-            Jejak audit otomatis dengan rincian item, opsi Nitip Teman, dan Worthiness Rating
+            {showManageLink
+              ? 'Daftar transaksi terbaru di buku besar Anda'
+              : 'Jejak audit otomatis dengan rincian item, opsi Nitip Teman, dan Worthiness Rating'}
           </p>
         </div>
 
-        {/* Search Bar */}
-        <div className="relative w-full sm:w-64">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-[#94a3b8]" />
-          <input
-            type="text"
-            placeholder="Cari item, lokasi, teman..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-            className="w-full rounded-xl bg-[#f8fafc] border border-[#e2e8f0] pl-9 pr-3 py-2 text-xs text-[#0f172a] placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 focus:border-[#004ac6] transition-shadow"
-          />
-        </div>
+        {showManageLink ? (
+          <Link
+            href="/transactions"
+            className="flex items-center gap-1.5 bg-[#eff4ff] hover:bg-[#dce9ff] text-[#004ac6] border border-[#004ac6]/20 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-2xs self-start sm:self-auto shrink-0"
+          >
+            <span>Kelola Transaksi</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        ) : (
+          /* Search Bar */
+          <div className="relative w-full sm:w-64">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-[#94a3b8]" />
+            <input
+              type="text"
+              placeholder="Cari item, lokasi, teman..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="w-full rounded-xl bg-[#f8fafc] border border-[#e2e8f0] pl-9 pr-3 py-2 text-xs text-[#0f172a] placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 focus:border-[#004ac6] transition-shadow"
+            />
+          </div>
+        )}
       </div>
 
       {/* Transaction Items List */}
@@ -275,8 +296,21 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
         )}
       </div>
 
+      {/* Bottom link to view full history on dashboard */}
+      {showManageLink && transactions.length > (maxDisplay || 5) && (
+        <div className="pt-2">
+          <Link
+            href="/transactions"
+            className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-[#f8fafc] hover:bg-[#eff4ff] border border-[#e2e8f0] hover:border-[#004ac6]/30 text-xs font-bold text-[#004ac6] transition-colors"
+          >
+            <span>Buka Seluruh Histori Transaksi ({transactions.length} Transaksi)</span>
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
+      )}
+
       {/* Pagination Controls */}
-      {enablePagination && filteredTransactions.length > 0 && (
+      {!showManageLink && enablePagination && filteredTransactions.length > 0 && (
         <div className="pt-4 border-t border-[#f1f5f9] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#64748b]">
           {/* Left info & items per page select */}
           <div className="flex items-center justify-between sm:justify-start gap-4">

@@ -206,16 +206,27 @@ export default function DashboardPage() {
           <CashFlowChart />
         </div>
 
-        {/* Connected Wallets & Recent Transactions */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
+        {/* Connected Wallets, Budget & Recent Transactions */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+          {/* Dompet Digital & Rekening Bank */}
+          <div className="order-1 lg:col-span-2 lg:col-start-1 lg:row-start-1">
             <WalletCards wallets={wallets} maxDisplay={6} showManageLink />
-            <RecentTransactions transactions={transactions} />
           </div>
 
-          <div className="space-y-6">
+          {/* Anggaran Bulanan (Mobile: Tampil ke-2 sebelum Riwayat Transaksi; Desktop: Kolom Kanan) */}
+          <div className="order-2 lg:order-3 lg:col-span-1 lg:col-start-3 lg:row-start-1 lg:row-span-2 space-y-6">
             <BudgetProgress
               budgets={budgets}
+              showManageLink
+            />
+          </div>
+
+          {/* Histori Ledger Transaksi */}
+          <div className="order-3 lg:order-2 lg:col-span-2 lg:col-start-1 lg:row-start-2">
+            <RecentTransactions
+              transactions={transactions}
+              maxDisplay={5}
+              enablePagination={false}
               showManageLink
             />
           </div>

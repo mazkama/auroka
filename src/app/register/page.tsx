@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { mockRegister } from '@/infrastructure/mock/mockAuth';
 import { apiRegister } from '@/infrastructure/api/authApi';
-import { Coins, Lock, Mail, User, ArrowRight, CheckCircle2, ShieldCheck, AlertCircle } from 'lucide-react';
+import { Coins, Lock, Mail, User, ArrowRight, CheckCircle2, ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
+import { AuthLoadingOverlay } from '@/presentation/components/ui/AuthLoadingOverlay';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showLoadingOverlay, setShowLoadingOverlay] = useState(false);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState<{ name?: string; email?: string; password?: string }>({});
 
@@ -55,7 +57,7 @@ export default function RegisterPage() {
       setLoading(true);
       try {
         await apiRegister(name, email, password);
-        router.push('/dashboard');
+        setShowLoadingOverlay(true);
         return;
       } catch (apiErr: unknown) {
         if (
@@ -68,13 +70,16 @@ export default function RegisterPage() {
         }
         const user = await mockRegister(name, email, password);
         localStorage.setItem('auroka_user', JSON.stringify(user));
-        router.push('/dashboard');
+        setShowLoadingOverlay(true);
       }
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Gagal membuat akun');
-    } finally {
       setLoading(false);
     }
+  };
+
+  const handleLoadingComplete = () => {
+    router.push('/dashboard');
   };
 
   return (
@@ -204,10 +209,19 @@ export default function RegisterPage() {
                 data-testid="register-submit"
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 bg-[#004ac6] hover:bg-[#2563eb] text-white py-3 rounded-xl font-bold text-xs shadow-lg shadow-[#004ac6]/20 hover:shadow-xl transition-all disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 bg-[#004ac6] hover:bg-[#2563eb] text-white py-3 rounded-xl font-bold text-xs shadow-lg shadow-[#004ac6]/20 hover:shadow-xl transition-all disabled:opacity-75"
               >
-                <span>{loading ? 'Mendaftarkan Akun...' : 'Daftar Akun Auroka'}</span>
-                <ArrowRight className="h-4 w-4" />
+                {loading ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Mempersiapkan Akun...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Daftar Akun Auroka</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </>
+                )}
               </button>
             </div>
             
@@ -256,6 +270,13 @@ export default function RegisterPage() {
           </div>
         </div>
       </div>
+
+      {/* Modern Auroka Frosted Loading Overlay */}
+      <AuthLoadingOverlay
+        isOpen={showLoadingOverlay}
+        onComplete={handleLoadingComplete}
+        title="Mendaftarkan Akun Auroka"
+      />
     </div>
   );
 }

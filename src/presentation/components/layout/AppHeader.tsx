@@ -22,11 +22,13 @@ import {
 interface AppHeaderProps {
   onToggleMobileSidebar: () => void;
   onOpenAddModal?: () => void;
+  onLogout?: () => void;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
   onToggleMobileSidebar,
   onOpenAddModal,
+  onLogout,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -184,9 +186,11 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 {/* Notification List */}
                 <div className="divide-y divide-[#f1f5f9] max-h-[60vh] sm:max-h-80 overflow-y-auto">
                   {sampleNotifications.map((notif) => (
-                    <div
+                    <Link
                       key={notif.id}
-                      className="p-3.5 flex items-start gap-3 hover:bg-[#f8fafc] transition-colors cursor-pointer"
+                      href="/notifications"
+                      onClick={() => setIsNotifOpen(false)}
+                      className="p-3.5 flex items-start gap-3 hover:bg-[#f8fafc] transition-colors cursor-pointer block"
                     >
                       <div className={`p-2 rounded-xl ${notif.bgColor} ${notif.iconColor} shrink-0 mt-0.5`}>
                         <notif.icon className="h-4 w-4" />
@@ -198,20 +202,20 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                         </div>
                         <p className="text-xs text-[#64748b] leading-relaxed">{notif.desc}</p>
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
 
                 {/* Footer CTA Button to View All Notifications */}
                 <div className="p-3 bg-[#f8fafc] border-t border-[#f1f5f9]">
-                  <a
-                    href="/transactions"
+                  <Link
+                    href="/notifications"
                     onClick={() => setIsNotifOpen(false)}
                     className="w-full flex items-center justify-center gap-2 bg-white border border-[#e2e8f0] hover:border-[#004ac6] text-[#004ac6] hover:bg-[#eff4ff] py-2 rounded-xl text-xs font-bold transition-all shadow-sm group"
                   >
-                    <span>Lihat Semua Pusat Notifikasi</span>
+                    <span>Lihat Semua Riwayat Notifikasi</span>
                     <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
-                  </a>
+                  </Link>
                 </div>
               </div>
             </>
@@ -295,17 +299,22 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
                 {/* Logout Option */}
                 <div className="p-2 border-t border-[#f1f5f9] bg-[#f8fafc]/60">
-                  <Link
-                    href="/login"
+                  <button
+                    type="button"
                     onClick={() => {
-                      logout();
                       setIsProfileOpen(false);
+                      if (onLogout) {
+                        onLogout();
+                      } else {
+                        logout();
+                        window.location.href = '/login';
+                      }
                     }}
-                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[#ba1a1a] hover:bg-rose-50 transition-all"
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[#ba1a1a] hover:bg-rose-50 transition-all text-left"
                   >
                     <LogOut className="h-4 w-4 text-[#ba1a1a]" />
                     <span>Keluar / Logout</span>
-                  </Link>
+                  </button>
                 </div>
               </div>
             </>
