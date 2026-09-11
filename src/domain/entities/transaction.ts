@@ -50,3 +50,16 @@ export interface CreateTransactionDTO {
   note?: string;
   items?: Omit<TransactionItem, 'id' | 'transactionId'>[];
 }
+
+export interface UpdateTransactionDTO {
+  walletId?: string;
+  type?: TransactionType;
+  title?: string;
+  totalAmount?: number;
+  transactionDate?: string;
+  locationName?: string;
+  cityName?: string;
+  note?: string;
+  items?: Omit<TransactionItem, 'id' | 'transactionId'>[];
+}
+

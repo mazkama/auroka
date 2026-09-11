@@ -27,6 +27,31 @@ export default function DashboardPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  React.useEffect(() => {
+    // Tangkap token dari URL parameter setelah callback dari backend Golang
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('token');
+      
+      if (token) {
+        // Simpan JWT token
+        localStorage.setItem('auroka_token', token);
+        
+        // Mock data user sementara agar session aktif
+        if (!localStorage.getItem('auroka_user')) {
+          localStorage.setItem('auroka_user', JSON.stringify({
+            id: 'google-auth',
+            name: 'Auroka User (Google)',
+            email: 'user@auroka.id'
+          }));
+        }
+        
+        // Bersihkan URL dari parameter token demi keamanan dan estetika
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+  }, []);
+
   return (
     <AppLayout onOpenAddModal={() => setIsModalOpen(true)}>
       <div className="space-y-6">

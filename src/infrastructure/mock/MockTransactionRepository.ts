@@ -1,5 +1,5 @@
 import { ITransactionRepository } from '@/domain/repositories/ITransactionRepository';
-import { Transaction, CreateTransactionDTO } from '@/domain/entities/transaction';
+import { Transaction, CreateTransactionDTO, UpdateTransactionDTO } from '@/domain/entities/transaction';
 import { FinancialSummary } from '@/domain/entities/summary';
 import { INITIAL_TRANSACTIONS, INITIAL_WALLETS, CURRENT_USER_ID } from './mockData';
 
@@ -45,6 +45,49 @@ export class MockTransactionRepository implements ITransactionRepository {
 
     this.transactions.unshift(newTx);
     return newTx;
+  }
+
+  async updateTransaction(id: string, dto: UpdateTransactionDTO): Promise<Transaction> {
+    await new Promise((res) => setTimeout(res, 150));
+    const index = this.transactions.findIndex((t) => t.id === id);
+    if (index === -1) {
+      throw new Error(`Transaction with ID ${id} not found`);
+    }
+
+    const currentTx = this.transactions[index];
+    const wallet = dto.walletId ? INITIAL_WALLETS.find((w) => w.id === dto.walletId) : undefined;
+
+    const updatedTx: Transaction = {
+      ...currentTx,
+      title: dto.title !== undefined ? dto.title : currentTx.title,
+      totalAmount: dto.totalAmount !== undefined ? dto.totalAmount : currentTx.totalAmount,
+      type: dto.type !== undefined ? dto.type : currentTx.type,
+      walletId: dto.walletId !== undefined ? dto.walletId : currentTx.walletId,
+      walletName: wallet ? wallet.name : currentTx.walletName,
+      transactionDate: dto.transactionDate !== undefined ? dto.transactionDate : currentTx.transactionDate,
+      locationName: dto.locationName !== undefined ? dto.locationName : currentTx.locationName,
+      cityName: dto.cityName !== undefined ? dto.cityName : currentTx.cityName,
+      note: dto.note !== undefined ? dto.note : currentTx.note,
+      items: dto.items !== undefined
+        ? dto.items.map((item, idx) => ({
+            ...item,
+            id: (item as any).id || `ti-${id}-${idx}`,
+            transactionId: id,
+          }))
+        : currentTx.items,
+    };
+
+    this.transactions[index] = updatedTx;
+    return updatedTx;
+  }
+
+  async deleteTransaction(id: string): Promise<void> {
+    await new Promise((res) => setTimeout(res, 150));
+    const index = this.transactions.findIndex((t) => t.id === id);
+    if (index === -1) {
+      throw new Error(`Transaction with ID ${id} not found`);
+    }
+    this.transactions.splice(index, 1);
   }
 
   async getFinancialSummary(): Promise<FinancialSummary> {

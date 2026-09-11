@@ -14,6 +14,8 @@ import { CreateBudgetUseCase } from '@/application/usecases/CreateBudget';
 import { UpdateBudgetUseCase } from '@/application/usecases/UpdateBudget';
 import { DeleteBudgetUseCase } from '@/application/usecases/DeleteBudget';
 import { CreateTransactionUseCase } from '@/application/usecases/CreateTransaction';
+import { UpdateTransactionUseCase } from '@/application/usecases/UpdateTransaction';
+import { DeleteTransactionUseCase } from '@/application/usecases/DeleteTransaction';
 import { CreateWallet } from '@/application/usecases/CreateWallet';
 import { UpdateWallet } from '@/application/usecases/UpdateWallet';
 import { DeleteWallet } from '@/application/usecases/DeleteWallet';
@@ -76,6 +78,20 @@ class Container {
 
   public getCreateTransactionUseCase(): CreateTransactionUseCase {
     return new CreateTransactionUseCase(
+      this.transactionRepository,
+      this.walletRepository
+    );
+  }
+
+  public getUpdateTransactionUseCase(): UpdateTransactionUseCase {
+    return new UpdateTransactionUseCase(
+      this.transactionRepository,
+      this.walletRepository
+    );
+  }
+
+  public getDeleteTransactionUseCase(): DeleteTransactionUseCase {
+    return new DeleteTransactionUseCase(
       this.transactionRepository,
       this.walletRepository
     );

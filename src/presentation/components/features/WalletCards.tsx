@@ -74,29 +74,40 @@ export const WalletCards: React.FC<WalletCardsProps> = ({
           return (
             <div
               key={wallet.id}
-              className="group relative rounded-2xl bg-white border border-[#e2e8f0] p-4 hover:border-[#cbd5e1] hover:shadow-md transition-all duration-200 shadow-sm overflow-hidden"
+              onClick={() => onEdit && onEdit(wallet)}
+              className={`group relative rounded-2xl bg-white border border-[#e2e8f0] p-4 hover:border-[#cbd5e1] hover:shadow-md transition-all duration-200 shadow-sm overflow-hidden ${
+                onEdit ? 'cursor-pointer active:scale-[0.99]' : ''
+              }`}
             >
-              {/* Action Buttons on Hover */}
-              <div className="absolute top-2 right-2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                {onEdit && (
-                  <button
-                    onClick={() => onEdit(wallet)}
-                    className="p-1.5 bg-[#f1f5f9] hover:bg-[#e2e8f0] text-[#64748b] hover:text-[#004ac6] rounded-lg transition-colors"
-                    aria-label="Edit Wallet"
-                  >
-                    <Edit2 className="h-3.5 w-3.5" />
-                  </button>
-                )}
-                {onDelete && (
-                  <button
-                    onClick={() => onDelete(wallet.id)}
-                    className="p-1.5 bg-[#f1f5f9] hover:bg-[#fee2e2] text-[#64748b] hover:text-[#ba1a1a] rounded-lg transition-colors"
-                    aria-label="Delete Wallet"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </button>
-                )}
-              </div>
+              {/* Action Buttons: on mobile delete is always visible, edit icon is hidden (direct card click edits). On desktop both appear on hover */}
+              {(onEdit || onDelete) && (
+                <div className="absolute top-2 right-2 flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                  {onEdit && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit(wallet);
+                      }}
+                      className="hidden sm:inline-flex p-1.5 bg-[#f1f5f9] hover:bg-[#e2e8f0] text-[#64748b] hover:text-[#004ac6] rounded-lg transition-colors"
+                      aria-label="Edit Wallet"
+                    >
+                      <Edit2 className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                  {onDelete && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete(wallet.id);
+                      }}
+                      className="p-1.5 bg-[#f1f5f9] hover:bg-[#fee2e2] text-[#64748b] hover:text-[#ba1a1a] rounded-lg transition-colors"
+                      aria-label="Delete Wallet"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+              )}
 
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-3">

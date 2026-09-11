@@ -13,18 +13,24 @@ import {
   ChevronLeft,
   ChevronRight,
   SlidersHorizontal,
+  Edit2,
+  Trash2,
 } from 'lucide-react';
 
 interface RecentTransactionsProps {
   transactions: Transaction[];
   enablePagination?: boolean;
   initialItemsPerPage?: number;
+  onEdit?: (tx: Transaction) => void;
+  onDelete?: (id: string) => void;
 }
 
 export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
   transactions,
   enablePagination = true,
   initialItemsPerPage = 5,
+  onEdit,
+  onDelete,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -114,7 +120,10 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
             return (
               <div
                 key={tx.id}
-                className="rounded-xl bg-white border border-[#e2e8f0] p-3.5 sm:p-4 space-y-3 hover:border-[#cbd5e1] hover:shadow-md transition-all duration-200 overflow-hidden"
+                onClick={() => onEdit && onEdit(tx)}
+                className={`rounded-xl bg-white border border-[#e2e8f0] p-3.5 sm:p-4 space-y-3 hover:border-[#cbd5e1] hover:shadow-md transition-all duration-200 overflow-hidden relative group ${
+                  onEdit ? 'cursor-pointer active:scale-[0.99]' : ''
+                }`}
               >
                 {/* Transaction Header */}
                 <div className="flex items-start justify-between gap-2.5 sm:gap-3">
@@ -133,7 +142,7 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="font-bold text-[#0f172a] text-xs sm:text-sm break-words leading-tight sm:leading-normal">
+                      <h4 className="font-bold text-[#0f172a] text-xs sm:text-sm break-words leading-tight sm:leading-normal group-hover:text-[#004ac6] transition-colors">
                         {tx.title}
                       </h4>
                       <div className="flex flex-wrap items-center gap-x-1.5 sm:gap-x-2 gap-y-0.5 text-[10px] sm:text-[11px] text-[#64748b] mt-1">
@@ -153,7 +162,7 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                     </div>
                   </div>
 
-                  <div className="text-right shrink-0">
+                  <div className="text-right shrink-0 flex flex-col items-end">
                     <span
                       className={`text-sm sm:text-base font-bold font-mono tracking-tight whitespace-nowrap block ${
                         isIncome ? 'text-[#16a34a]' : 'text-[#0f172a]'
@@ -161,7 +170,7 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                     >
                       {isIncome ? '+' : '-'} {formatRupiah(tx.totalAmount)}
                     </span>
-                    <div className="mt-0.5 flex justify-end">
+                    <div className="mt-1 flex items-center justify-end gap-1.5">
                       <span
                         className={`inline-block rounded-md px-1.5 sm:px-2 py-0.5 text-[9px] sm:text-[10px] font-bold ${
                           isIncome
@@ -171,6 +180,36 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
                       >
                         {tx.type}
                       </span>
+
+                      {/* Action buttons: on mobile delete is always visible, edit icon hidden (direct card click edits). On desktop both appear on hover */}
+                      {(onEdit || onDelete) && (
+                        <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
+                          {onEdit && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onEdit(tx);
+                              }}
+                              title="Edit Transaksi"
+                              className="hidden sm:inline-flex p-1 rounded-lg text-[#64748b] hover:text-[#004ac6] hover:bg-[#eff4ff] transition-colors"
+                            >
+                              <Edit2 className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                          {onDelete && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onDelete(tx.id);
+                              }}
+                              title="Hapus Transaksi"
+                              className="p-1 rounded-lg text-[#64748b] hover:text-[#ba1a1a] hover:bg-rose-50 transition-colors"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

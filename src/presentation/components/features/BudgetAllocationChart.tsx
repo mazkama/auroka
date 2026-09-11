@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Budget } from '@/domain/entities/budget';
 import { formatRupiah } from '@/presentation/utils/formatters';
 import {
@@ -34,6 +34,43 @@ export const BudgetAllocationChart: React.FC<BudgetAllocationChartProps> = ({
   budgets,
   monthlyIncome,
 }) => {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const legendContainerRef = useRef<HTMLDivElement>(null);
+
+  // Close blur mode when clicking anywhere outside the chart sectors or legend
+  useEffect(() => {
+    if (activeIndex === null) return;
+
+    const handleClickOutside = (event: Event) => {
+      const target = event.target as Element | null;
+      if (!target) return;
+
+      // Ignore if clicked on a pie chart sector
+      if (
+        typeof target.closest === 'function' &&
+        (target.closest('.recharts-sector') || target.closest('.recharts-pie-sector'))
+      ) {
+        return;
+      }
+
+      // Ignore if clicked on a legend item
+      if (legendContainerRef.current && legendContainerRef.current.contains(target)) {
+        return;
+      }
+
+      setActiveIndex(null);
+    };
+
+    const timer = setTimeout(() => {
+      document.addEventListener('pointerdown', handleClickOutside);
+    }, 50);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('pointerdown', handleClickOutside);
+    };
+  }, [activeIndex]);
+
   // If monthly income is 0 or less, fallback to total budgeted limit
   const totalBudgeted = budgets.reduce((acc, b) => acc + b.limitAmount, 0);
   const baseIncome = monthlyIncome > 0 ? monthlyIncome : Math.max(totalBudgeted * 1.25, 15000000);
@@ -59,6 +96,10 @@ export const BudgetAllocationChart: React.FC<BudgetAllocationChartProps> = ({
         ]
       : []),
   ];
+
+  const handlePieClick = (_: any, index: number) => {
+    setActiveIndex((prev) => (prev === index ? null : index));
+  };
 
   return (
     <div className="rounded-2xl bg-white border border-[#e2e8f0] p-6 space-y-6 shadow-sm">
@@ -87,9 +128,9 @@ export const BudgetAllocationChart: React.FC<BudgetAllocationChartProps> = ({
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
         {/* Donut Chart Visual */}
-        <div className="lg:col-span-5 flex flex-col items-center justify-center relative min-h-[260px]">
-          <ResponsiveContainer width="100%" height={260}>
-            <PieChart>
+        <div className="lg:col-span-5 flex flex-col items-center justify-center relative min-h-[260px] select-none outline-none">
+          <ResponsiveContainer width="100%" height={260} className="outline-none focus:outline-none">
+            <PieChart className="outline-none focus:outline-none">
               <Pie
                 data={chartData}
                 cx="50%"
@@ -98,18 +139,41 @@ export const BudgetAllocationChart: React.FC<BudgetAllocationChartProps> = ({
                 outerRadius={105}
                 paddingAngle={4}
                 dataKey="value"
+                onClick={handlePieClick}
+                style={{ outline: 'none', cursor: 'pointer' }}
               >
-                {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} stroke="#ffffff" strokeWidth={2} />
-                ))}
+                {chartData.map((entry, index) => {
+                  const isSelected = activeIndex === index;
+                  const isDimmed = activeIndex !== null && !isSelected;
+
+                  return (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={entry.color}
+                      stroke="#ffffff"
+                      strokeWidth={isSelected ? 3 : 2}
+                      opacity={isDimmed ? 0.5 : 1}
+                      style={{
+                        outline: 'none',
+                        cursor: 'pointer',
+                        filter: isDimmed ? 'blur(0.7px)' : 'none',
+                        transition: 'opacity 0.25s ease, filter 0.25s ease',
+                        WebkitTapHighlightColor: 'transparent',
+                      }}
+                    />
+                  );
+                })}
               </Pie>
               <Tooltip
+                cursor={false}
+                wrapperStyle={{ outline: 'none' }}
                 contentStyle={{
                   backgroundColor: '#ffffff',
                   borderRadius: '12px',
                   border: '1px solid #e2e8f0',
                   boxShadow: '0 10px 25px -5px rgba(0,0,0,0.1)',
                   fontSize: '12px',
+                  outline: 'none',
                 }}
                 formatter={(value: any, name: any, props: any) => [
                   `${formatRupiah(Number(value))} (${props.payload.percentage}%)`,
@@ -121,46 +185,92 @@ export const BudgetAllocationChart: React.FC<BudgetAllocationChartProps> = ({
 
           {/* Center Badge overlay */}
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-            <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#64748b]">
-              Dialokasikan
-            </span>
-            <span className="text-xl font-extrabold font-mono text-[#0f172a]">
-              {(((totalBudgeted / baseIncome) * 100) || 0).toFixed(0)}%
-            </span>
-            <span className="text-[10px] text-[#006c49] font-bold">
-              {formatRupiah(totalBudgeted)}
-            </span>
+            <div
+              onClick={() => setActiveIndex(null)}
+              className={`flex flex-col items-center justify-center transition-all ${
+                activeIndex !== null ? 'pointer-events-auto cursor-pointer p-2 rounded-full hover:bg-slate-50' : ''
+              }`}
+              title={activeIndex !== null ? 'Klik untuk reset pilihan' : undefined}
+            >
+              {activeIndex !== null && chartData[activeIndex] ? (
+                <>
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#004ac6] truncate max-w-[120px]">
+                    {chartData[activeIndex].name}
+                  </span>
+                  <span className="text-xl font-extrabold font-mono text-[#0f172a]">
+                    {chartData[activeIndex].percentage}%
+                  </span>
+                  <span className="text-[10px] text-[#64748b] font-bold">
+                    {formatRupiah(chartData[activeIndex].value)}
+                  </span>
+                  <span className="text-[9px] text-[#94a3b8] mt-0.5 font-medium hover:text-[#004ac6]">
+                    (reset)
+                  </span>
+                </>
+              ) : (
+                <>
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-[#64748b]">
+                    Dialokasikan
+                  </span>
+                  <span className="text-xl font-extrabold font-mono text-[#0f172a]">
+                    {(((totalBudgeted / baseIncome) * 100) || 0).toFixed(0)}%
+                  </span>
+                  <span className="text-[10px] text-[#006c49] font-bold">
+                    {formatRupiah(totalBudgeted)}
+                  </span>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Legend & Percentage List Grid */}
-        <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-3">
-          {chartData.map((item) => (
-            <div
-              key={item.name}
-              className="flex items-center justify-between p-3 rounded-xl bg-[#f8fafc] border border-[#e2e8f0] hover:bg-white hover:shadow-sm transition-all"
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <span
-                  className="w-3.5 h-3.5 rounded-full shrink-0 shadow-xs"
-                  style={{ backgroundColor: item.color }}
-                />
-                <div className="truncate">
-                  <h4 className="text-xs font-bold text-[#0f172a] truncate">{item.name}</h4>
-                  <p className="text-[10px] text-[#64748b]">{formatRupiah(item.value)}</p>
+        <div ref={legendContainerRef} className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {chartData.map((item, index) => {
+            const isSelected = activeIndex === index;
+            const isDimmed = activeIndex !== null && !isSelected;
+
+            return (
+              <div
+                key={item.name}
+                onClick={() => setActiveIndex((prev) => (prev === index ? null : index))}
+                className={`flex items-center justify-between p-3 rounded-xl border transition-all cursor-pointer ${
+                  isSelected
+                    ? 'bg-blue-50/80 border-[#004ac6] shadow-xs ring-1 ring-[#004ac6]/30'
+                    : isDimmed
+                    ? 'bg-[#f8fafc]/50 border-[#e2e8f0] opacity-55 hover:opacity-85'
+                    : 'bg-[#f8fafc] border-[#e2e8f0] hover:bg-white hover:shadow-sm'
+                }`}
+              >
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span
+                    className="w-3.5 h-3.5 rounded-full shrink-0 shadow-xs transition-transform duration-200"
+                    style={{
+                      backgroundColor: item.color,
+                      transform: isSelected ? 'scale(1.2)' : 'scale(1)',
+                    }}
+                  />
+                  <div className="truncate">
+                    <h4 className="text-xs font-bold text-[#0f172a] truncate">{item.name}</h4>
+                    <p className="text-[10px] text-[#64748b]">{formatRupiah(item.value)}</p>
+                  </div>
+                </div>
+
+                <div className="text-right shrink-0 pl-2">
+                  <span
+                    className={`text-xs font-mono font-bold px-2 py-0.5 rounded-lg border transition-all ${
+                      isSelected
+                        ? 'bg-white border-[#004ac6] shadow-xs'
+                        : 'bg-white border-[#e2e8f0]'
+                    }`}
+                    style={{ color: item.color }}
+                  >
+                    {item.percentage}%
+                  </span>
                 </div>
               </div>
-
-              <div className="text-right shrink-0 pl-2">
-                <span
-                  className="text-xs font-mono font-bold px-2 py-0.5 rounded-lg bg-white border border-[#e2e8f0]"
-                  style={{ color: item.color }}
-                >
-                  {item.percentage}%
-                </span>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </div>

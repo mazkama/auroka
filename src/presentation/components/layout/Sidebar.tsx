@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { AuthUser, logout } from '@/infrastructure/api/authApi';
 import {
   LayoutDashboard,
   Receipt,
@@ -32,6 +33,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenAddModal,
 }) => {
   const pathname = usePathname();
+  const [user, setUser] = useState<AuthUser | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedUser = localStorage.getItem('auroka_user');
+      if (storedUser) {
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch (e) {
+          console.error('Failed to parse user in sidebar', e);
+        }
+      }
+    }
+  }, []);
+
+  const getInitials = (name?: string) => {
+    if (!name) return 'AU';
+    const names = name.trim().split(' ');
+    if (names.length >= 2) return (names[0][0] + names[1][0]).toUpperCase();
+    return name.slice(0, 2).toUpperCase();
+  };
 
   const navItems = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -104,16 +126,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="pt-2 flex items-center justify-between p-2 rounded-xl bg-[#eff4ff] border border-[#c3c6d7]/40">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-[#004ac6] text-white flex items-center justify-center font-bold text-xs">
-            AU
+            {user ? getInitials(user.name) : 'AU'}
           </div>
           <div>
-            <p className="text-xs font-bold text-[#0b1c30]">Demo User</p>
-            <p className="text-[10px] text-[#434655]">user@auroka.id</p>
+            <p className="text-xs font-bold text-[#0b1c30]">{user ? user.name : 'Pengguna Auroka'}</p>
+            <p className="text-[10px] text-[#434655]">{user ? user.email : 'user@auroka.id'}</p>
           </div>
         </div>
         <Link
           href="/login"
           title="Keluar / Switch User"
+          onClick={() => logout()}
           className="p-1.5 rounded-lg text-[#434655] hover:text-[#ba1a1a] hover:bg-rose-50"
         >
           <LogOut className="h-4 w-4" />

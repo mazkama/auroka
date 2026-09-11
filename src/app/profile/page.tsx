@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppLayout } from '@/presentation/components/layout/AppLayout';
 import { useFinance } from '@/presentation/hooks/useFinance';
+import { AuthUser } from '@/infrastructure/api/authApi';
 import { AddTransactionModal } from '@/presentation/components/features/AddTransactionModal';
 import {
   User,
@@ -25,11 +26,35 @@ export default function ProfilePage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Profile Form States
-  const [username, setUsername] = useState('Demo User');
-  const [phone, setPhone] = useState('+62 812-3456-7890');
-  const googleEmail = 'user@auroka.id'; // Fixed Google Gmail Account (Cannot be changed)
-  const [bio, setBio] = useState('Pengguna Auroka Enterprise Finansial.');
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [username, setUsername] = useState('Memuat...');
+  const [phone, setPhone] = useState('');
+  const [googleEmail, setGoogleEmail] = useState('Memuat...'); // Email
+  const [bio, setBio] = useState('');
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedUser = localStorage.getItem('auroka_user');
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          setUser(parsedUser);
+          setUsername(parsedUser.name);
+          setGoogleEmail(parsedUser.email);
+        } catch (e) {
+          console.error('Failed to parse user', e);
+        }
+      }
+    }
+  }, []);
+
+  const getInitials = (name?: string) => {
+    if (!name || name === 'Memuat...') return 'AU';
+    const names = name.trim().split(' ');
+    if (names.length >= 2) return (names[0][0] + names[1][0]).toUpperCase();
+    return name.slice(0, 2).toUpperCase();
+  };
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -102,7 +127,7 @@ export default function ProfilePage() {
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <span>AU</span>
+                  <span>{user ? getInitials(user.name) : 'AU'}</span>
                 )}
               </div>
 
@@ -126,11 +151,7 @@ export default function ProfilePage() {
             <div className="pt-2 border-t border-[#f1f5f9] flex items-center justify-center gap-2">
               <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#006c49] bg-[#006c49]/10 px-3 py-1 rounded-full">
                 <ShieldCheck className="h-3.5 w-3.5" />
-                Google Verified
-              </span>
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#004ac6] bg-[#004ac6]/10 px-3 py-1 rounded-full">
-                <Sparkles className="h-3.5 w-3.5" />
-                Auroka Pro
+                Email Verified
               </span>
             </div>
           </div>
@@ -197,7 +218,7 @@ export default function ProfilePage() {
               <div className="space-y-1.5">
                 <div className="flex items-center justify-between">
                   <label className="block text-xs font-bold text-[#334155]">
-                    Alamat Gmail (Akun Google Terdaftar)
+                    Alamat Email Terdaftar
                   </label>
                   <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#64748b] bg-[#f1f5f9] px-2 py-0.5 rounded-md">
                     <Lock className="h-3 w-3 text-[#94a3b8]" />
@@ -220,7 +241,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
                 <p className="text-[10px] text-[#64748b]">
-                  Alamat email terikat langsung dengan akun Google SSO demi integritas data dan keamanan Ledger.
+                  Alamat email digunakan untuk autentikasi demi integritas data dan keamanan Ledger.
                 </p>
               </div>
 
@@ -274,7 +295,7 @@ export default function ProfilePage() {
                 <span className="text-[10px] font-bold text-[#006c49]">Aktif</span>
               </div>
               <p className="text-[11px] text-[#64748b]">
-                Terkoneksi langsung melalui Single Sign-On (SSO) Google Account.
+                Terkoneksi melalui Autentikasi Email & Password.
               </p>
             </div>
 

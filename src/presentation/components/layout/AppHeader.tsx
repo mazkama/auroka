@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { AuthUser, logout } from '@/infrastructure/api/authApi';
 import {
   Menu,
   Bell,
@@ -30,8 +31,29 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const notifRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const storedUser = localStorage.getItem('auroka_user');
+      if (storedUser) {
+        try {
+          setUser(JSON.parse(storedUser));
+        } catch (e) {
+          console.error('Failed to parse user', e);
+        }
+      }
+    }
+  }, []);
+
+  const getInitials = (name?: string) => {
+    if (!name) return 'AU';
+    const names = name.trim().split(' ');
+    if (names.length >= 2) return (names[0][0] + names[1][0]).toUpperCase();
+    return name.slice(0, 2).toUpperCase();
+  };
 
   // Close popovers when clicking outside
   useEffect(() => {
@@ -218,7 +240,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
             className="flex items-center gap-2 p-1 rounded-xl hover:bg-[#eff4ff] transition-all group"
           >
             <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#004ac6] to-[#2563eb] text-white flex items-center justify-center font-bold text-xs shadow-sm ring-2 ring-transparent group-hover:ring-[#004ac6]/20 transition-all">
-              AU
+              {user ? getInitials(user.name) : 'AU'}
             </div>
             <ChevronDown
               className={`hidden md:block h-3.5 w-3.5 text-[#64748b] transition-transform duration-200 ${
@@ -241,16 +263,11 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 <div className="p-4 border-b border-[#f1f5f9] bg-gradient-to-br from-[#f8f9ff] to-[#eff4ff]">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#004ac6] to-[#2563eb] text-white flex items-center justify-center font-bold text-sm shadow-md">
-                      AU
+                      {user ? getInitials(user.name) : 'AU'}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5">
-                        <h3 className="font-bold text-sm text-[#0b1c30] truncate">Demo User</h3>
-                        <span className="text-[9px] font-extrabold uppercase bg-[#004ac6]/10 text-[#004ac6] px-1.5 py-0.5 rounded-full border border-[#004ac6]/20">
-                          Pro
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-[#64748b] truncate">user@auroka.id</p>
+                      <h3 className="font-bold text-sm text-[#0b1c30] truncate">{user ? user.name : 'Pengguna Auroka'}</h3>
+                      <p className="text-[11px] text-[#64748b] truncate">{user ? user.email : 'user@auroka.id'}</p>
                     </div>
                   </div>
                 </div>
@@ -280,7 +297,10 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
                 <div className="p-2 border-t border-[#f1f5f9] bg-[#f8fafc]/60">
                   <Link
                     href="/login"
-                    onClick={() => setIsProfileOpen(false)}
+                    onClick={() => {
+                      logout();
+                      setIsProfileOpen(false);
+                    }}
                     className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold text-[#ba1a1a] hover:bg-rose-50 transition-all"
                   >
                     <LogOut className="h-4 w-4 text-[#ba1a1a]" />

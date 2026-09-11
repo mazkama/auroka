@@ -9,6 +9,7 @@ import { BudgetAllocationChart } from '@/presentation/components/features/Budget
 import { BudgetProgress } from '@/presentation/components/features/BudgetProgress';
 import { AddTransactionModal } from '@/presentation/components/features/AddTransactionModal';
 import { WalletModal } from '@/presentation/components/features/WalletModal';
+import { ConfirmModal } from '@/presentation/components/ui/ConfirmModal';
 import { Wallet } from '@/domain/entities/wallet';
 import {
   Wallet as WalletIcon,
@@ -36,6 +37,7 @@ export default function WalletsPage() {
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [walletToEdit, setWalletToEdit] = useState<Wallet | null>(null);
+  const [walletToDelete, setWalletToDelete] = useState<Wallet | null>(null);
 
   const monthlyIncome = summary?.monthlyIncome || 18500000;
   const totalBalance = summary?.totalBalance || wallets.reduce((acc, w) => acc + w.balance, 0);
@@ -60,13 +62,10 @@ export default function WalletsPage() {
     }
   };
 
-  const handleDeleteWallet = async (id: string) => {
-    if (
-      confirm(
-        'Apakah Anda yakin ingin menghapus dompet ini? Semua transaksi terkait akan kehilangan referensinya.'
-      )
-    ) {
-      await removeWallet(id);
+  const handleDeleteWallet = (id: string) => {
+    const target = wallets.find((w) => w.id === id);
+    if (target) {
+      setWalletToDelete(target);
     }
   };
 
@@ -177,6 +176,22 @@ export default function WalletsPage() {
         onClose={() => setIsWalletModalOpen(false)}
         onSave={handleSaveWallet}
         walletToEdit={walletToEdit}
+      />
+
+      {/* Animated Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={walletToDelete !== null}
+        onClose={() => setWalletToDelete(null)}
+        onConfirm={async () => {
+          if (walletToDelete) {
+            await removeWallet(walletToDelete.id);
+          }
+        }}
+        title="Hapus Rekening Dompet?"
+        itemName={walletToDelete?.name}
+        description="Semua transaksi terkait akan kehilangan referensi ke akun ini jika dihapus. Tindakan ini tidak dapat dibatalkan."
+        confirmText="Hapus Dompet"
+        cancelText="Batal"
       />
     </AppLayout>
   );

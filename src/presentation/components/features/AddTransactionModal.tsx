@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Wallet } from '@/domain/entities/wallet';
-import { Category, TransactionType } from '@/domain/entities/transaction';
+import { Transaction, Category, TransactionType } from '@/domain/entities/transaction';
 import { CURRENT_USER_ID } from '@/infrastructure/mock/mockData';
-import { X, Plus, UserCheck } from 'lucide-react';
+import { X, Plus, UserCheck, Check } from 'lucide-react';
 
 interface AddTransactionModalProps {
   isOpen: boolean;
@@ -29,6 +29,8 @@ interface AddTransactionModalProps {
       rating?: number;
     }[];
   }) => Promise<void>;
+  transactionToEdit?: Transaction | null;
+  onEditTransaction?: (id: string, data: any) => Promise<void>;
 }
 
 const CATEGORIES: Category[] = [
@@ -48,6 +50,8 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   onClose,
   wallets,
   onAddTransaction,
+  transactionToEdit,
+  onEditTransaction,
 }) => {
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
@@ -62,6 +66,50 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   const [note, setNote] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (transactionToEdit) {
+      setTitle(transactionToEdit.title);
+      setAmount(transactionToEdit.totalAmount.toString());
+      setType(transactionToEdit.type);
+      setWalletId(transactionToEdit.walletId);
+      setLocationName(transactionToEdit.locationName || '');
+      setNote(transactionToEdit.note || '');
+
+      const firstItem = transactionToEdit.items?.[0];
+      if (firstItem) {
+        if (CATEGORIES.includes(firstItem.categoryName)) {
+          setCategory(firstItem.categoryName);
+          setIsCustomCategory(false);
+          setCustomCategory('');
+        } else {
+          setIsCustomCategory(true);
+          setCustomCategory(firstItem.categoryName);
+        }
+        setIsFriendOrder(!!firstItem.isFriendOrder);
+        setFriendName(firstItem.friendName || '');
+      } else {
+        setCategory('Makan & Minum');
+        setIsCustomCategory(false);
+        setCustomCategory('');
+        setIsFriendOrder(false);
+        setFriendName('');
+      }
+    } else {
+      setTitle('');
+      setAmount('');
+      setType('OUT');
+      setCategory('Makan & Minum');
+      setCustomCategory('');
+      setIsCustomCategory(false);
+      setWalletId(wallets[0]?.id || 'w-1');
+      setLocationName('');
+      setIsFriendOrder(false);
+      setFriendName('');
+      setNote('');
+    }
+    setError('');
+  }, [transactionToEdit, isOpen, wallets]);
 
   if (!isOpen) return null;
 
@@ -87,7 +135,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     try {
       setSubmitting(true);
       setError('');
-      await onAddTransaction({
+      const txPayload = {
         userId: CURRENT_USER_ID,
         walletId,
         type,
@@ -106,17 +154,14 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
             rating: 5,
           },
         ],
-      });
+      };
 
-      // Reset
-      setTitle('');
-      setAmount('');
-      setNote('');
-      setLocationName('');
-      setIsFriendOrder(false);
-      setFriendName('');
-      setCustomCategory('');
-      setIsCustomCategory(false);
+      if (transactionToEdit && onEditTransaction) {
+        await onEditTransaction(transactionToEdit.id, txPayload);
+      } else {
+        await onAddTransaction(txPayload);
+      }
+
       onClose();
     } catch (err: unknown) {
       setError(
@@ -139,8 +184,12 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
       <div className="relative bg-white rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-[#e2e8f0]">
         <div className="flex items-center justify-between p-5 border-b border-[#f1f5f9] bg-white">
           <div>
-            <h3 className="text-lg font-bold text-[#0f172a]">Catat Transaksi Auroka</h3>
-            <p className="text-[11px] text-[#64748b]">Arsitektur Header-Detail & Ledger System</p>
+            <h3 className="text-lg font-bold text-[#0f172a]">
+              {transactionToEdit ? 'Edit Transaksi Auroka' : 'Catat Transaksi Auroka'}
+            </h3>
+            <p className="text-[11px] text-[#64748b]">
+              {transactionToEdit ? 'Perbarui jejak audit & rekonsiliasi saldo buku besar' : 'Arsitektur Header-Detail & Ledger System'}
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -352,10 +401,20 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
             type="submit"
             onClick={handleSubmit}
             disabled={submitting}
-            className="flex items-center gap-2 rounded-xl bg-[#004ac6] hover:bg-[#2563eb] px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-[#004ac6]/20 hover:shadow-lg transition-all transform hover:-translate-y-0.5 disabled:opacity-50"
+            className="flex items-center gap-2 rounded-xl bg-[#004ac6] hover:bg-[#2563eb] px-6 py-2.5 text-sm font-bold text-white shadow-md shadow-[#004ac6]/20 hover:shadow-lg transition-all transform hover:-translate-y-0.5 disabled:opacity-50 cursor-pointer"
           >
-            <Plus className="h-4 w-4" />
-            <span>{submitting ? 'Menyimpan...' : 'Simpan Transaksi'}</span>
+            {transactionToEdit ? (
+              <Check className="h-4 w-4" />
+            ) : (
+              <Plus className="h-4 w-4" />
+            )}
+            <span>
+              {submitting
+                ? 'Menyimpan...'
+                : transactionToEdit
+                ? 'Simpan Perubahan'
+                : 'Simpan Transaksi'}
+            </span>
           </button>
         </div>
       </div>

@@ -37,4 +37,40 @@ describe('Ledger System Integration Test', () => {
     const updatedTargetWallet = updatedWallets.find((w) => w.id === targetWallet.id);
     expect(updatedTargetWallet?.balance).toBe(initialBalance + 1000000);
   });
+
+  it('updates a transaction and reconciles wallet balance correctly', async () => {
+    const walletsUseCase = container.getWalletsUseCase();
+    const wallets = await walletsUseCase.execute();
+    const wallet = wallets[0];
+    const startingBalance = wallet.balance;
+
+    const createTxUseCase = container.getCreateTransactionUseCase();
+    const tx = await createTxUseCase.execute({
+      userId: 'usr-test',
+      walletId: wallet.id,
+      type: 'OUT',
+      title: 'Coffee Test',
+      totalAmount: 50000,
+    });
+
+    const balanceAfterCreate = (await walletsUseCase.execute()).find((w) => w.id === wallet.id)?.balance;
+    expect(balanceAfterCreate).toBe(startingBalance - 50000);
+
+    // Update amount from 50000 to 80000
+    const updateTxUseCase = container.getUpdateTransactionUseCase();
+    const updatedTx = await updateTxUseCase.execute(tx.id, {
+      totalAmount: 80000,
+    });
+    expect(updatedTx.totalAmount).toBe(80000);
+
+    const balanceAfterUpdate = (await walletsUseCase.execute()).find((w) => w.id === wallet.id)?.balance;
+    expect(balanceAfterUpdate).toBe(startingBalance - 80000);
+
+    // Delete transaction and verify full balance reversion
+    const deleteTxUseCase = container.getDeleteTransactionUseCase();
+    await deleteTxUseCase.execute(tx.id);
+
+    const balanceAfterDelete = (await walletsUseCase.execute()).find((w) => w.id === wallet.id)?.balance;
+    expect(balanceAfterDelete).toBe(startingBalance);
+  });
 });

@@ -6,6 +6,7 @@ import { Budget, CreateBudgetDTO, UpdateBudgetDTO } from '@/domain/entities/budg
 import { formatRupiah } from '@/presentation/utils/formatters';
 import { PieChart, AlertCircle, Plus, Edit2, Trash2, ArrowRight } from 'lucide-react';
 import { BudgetModal } from './BudgetModal';
+import { ConfirmModal } from '../ui/ConfirmModal';
 
 interface BudgetProgressProps {
   budgets: Budget[];
@@ -24,6 +25,7 @@ export const BudgetProgress: React.FC<BudgetProgressProps> = ({
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState<Budget | null>(null);
+  const [budgetToDelete, setBudgetToDelete] = useState<{ id: string; category: string } | null>(null);
 
   const handleOpenAdd = () => {
     setEditingBudget(null);
@@ -35,10 +37,8 @@ export const BudgetProgress: React.FC<BudgetProgressProps> = ({
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (id: string, category: string) => {
-    if (onDeleteBudget && confirm(`Apakah Anda yakin ingin menghapus anggaran ${category}?`)) {
-      await onDeleteBudget(id);
-    }
+  const handleDelete = (id: string, category: string) => {
+    setBudgetToDelete({ id, category });
   };
 
   return (
@@ -101,7 +101,13 @@ export const BudgetProgress: React.FC<BudgetProgressProps> = ({
             const isDanger = percentage >= 95;
 
             return (
-              <div key={budget.id} className="space-y-1.5 group relative">
+              <div
+                key={budget.id}
+                onClick={() => onEditBudget && handleOpenEdit(budget)}
+                className={`space-y-1.5 group relative p-2 -mx-2 rounded-xl transition-all ${
+                  onEditBudget ? 'cursor-pointer hover:bg-[#f8fafc] active:scale-[0.99]' : ''
+                }`}
+              >
                 <div className="flex items-center justify-between text-xs">
                   <div className="flex items-center gap-1.5 font-bold text-[#0f172a] group-hover:text-[#004ac6] transition-colors">
                     <span>{budget.category}</span>
@@ -122,25 +128,31 @@ export const BudgetProgress: React.FC<BudgetProgressProps> = ({
                       / {formatRupiah(budget.limitAmount)}
                     </div>
 
-                    {/* Action Buttons on Hover */}
+                    {/* Action Buttons: on mobile delete is always visible, edit icon is hidden (direct row click edits). On desktop both appear on hover */}
                     {(onEditBudget || onDeleteBudget) && (
-                      <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity">
+                      <div className="flex items-center gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                         {onEditBudget && (
                           <button
-                            onClick={() => handleOpenEdit(budget)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenEdit(budget);
+                            }}
                             title="Edit Anggaran"
-                            className="p-1 rounded text-[#64748b] hover:text-[#004ac6] hover:bg-[#eff4ff] transition-colors"
+                            className="hidden sm:inline-flex p-1 rounded text-[#64748b] hover:text-[#004ac6] hover:bg-[#eff4ff] transition-colors"
                           >
                             <Edit2 className="h-3 w-3" />
                           </button>
                         )}
                         {onDeleteBudget && (
                           <button
-                            onClick={() => handleDelete(budget.id, budget.category)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(budget.id, budget.category);
+                            }}
                             title="Hapus Anggaran"
                             className="p-1 rounded text-[#64748b] hover:text-[#ba1a1a] hover:bg-rose-50 transition-colors"
                           >
-                            <Trash2 className="h-3 w-3" />
+                            <Trash2 className="h-3.5 w-3.5 sm:h-3 sm:w-3" />
                           </button>
                         )}
                       </div>
@@ -183,6 +195,22 @@ export const BudgetProgress: React.FC<BudgetProgressProps> = ({
           onEditBudget={onEditBudget}
         />
       )}
+
+      {/* Confirm Delete Modal */}
+      <ConfirmModal
+        isOpen={budgetToDelete !== null}
+        onClose={() => setBudgetToDelete(null)}
+        onConfirm={async () => {
+          if (budgetToDelete && onDeleteBudget) {
+            await onDeleteBudget(budgetToDelete.id);
+          }
+        }}
+        title="Hapus Anggaran?"
+        itemName={budgetToDelete?.category}
+        description="Batas alokasi untuk kategori ini akan dihapus dari pengawasan anggaran bulanan Anda."
+        confirmText="Hapus Anggaran"
+        cancelText="Batal"
+      />
     </div>
   );
 };

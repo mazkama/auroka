@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { container } from '@/infrastructure/di/container';
 import { FinancialSummary } from '@/domain/entities/summary';
-import { Transaction, CreateTransactionDTO } from '@/domain/entities/transaction';
+import { Transaction, CreateTransactionDTO, UpdateTransactionDTO } from '@/domain/entities/transaction';
 import { Wallet } from '@/domain/entities/wallet';
 import { Budget, CreateBudgetDTO, UpdateBudgetDTO } from '@/domain/entities/budget';
 
@@ -52,6 +52,28 @@ export function useFinance() {
     } catch (err: unknown) {
       throw new Error(
         err instanceof Error ? err.message : 'Gagal menambah transaksi'
+      );
+    }
+  };
+
+  const editTransaction = async (id: string, dto: UpdateTransactionDTO) => {
+    try {
+      await container.getUpdateTransactionUseCase().execute(id, dto);
+      await fetchData();
+    } catch (err: unknown) {
+      throw new Error(
+        err instanceof Error ? err.message : 'Gagal mengubah transaksi'
+      );
+    }
+  };
+
+  const removeTransaction = async (id: string) => {
+    try {
+      await container.getDeleteTransactionUseCase().execute(id);
+      await fetchData();
+    } catch (err: unknown) {
+      throw new Error(
+        err instanceof Error ? err.message : 'Gagal menghapus transaksi'
       );
     }
   };
@@ -119,6 +141,8 @@ export function useFinance() {
     error,
     refreshData: fetchData,
     addTransaction,
+    editTransaction,
+    removeTransaction,
     addWallet,
     editWallet,
     removeWallet,
