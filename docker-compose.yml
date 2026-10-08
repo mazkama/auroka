@@ -34,18 +34,35 @@ services:
       DB_PASSWORD: "${DB_PASSWORD:-auroka_password_secure123}"
       DB_NAME: "${DB_NAME:-auroka_db}"
       DB_PORT: "${DB_PORT:-5432}"
-      JWT_SECRET: "${JWT_SECRET}"
+      JWT_SECRET: "${JWT_SECRET:-auroka_jwt_super_secret_key_2026}"
       RESEND_API_KEY: "${RESEND_API_KEY}"
-      RESEND_FROM_EMAIL: "${RESEND_FROM_EMAIL}"
-      FRONTEND_URL: "${FRONTEND_URL}"
+      RESEND_FROM_EMAIL: "${RESEND_FROM_EMAIL:-Auroka <no-reply@auroka.kuloalan.online>}"
+      FRONTEND_URL: "${FRONTEND_URL:-http://localhost:3000}"
       GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID}"
       GOOGLE_CLIENT_SECRET: "${GOOGLE_CLIENT_SECRET}"
-      GOOGLE_REDIRECT_URL: "${GOOGLE_REDIRECT_URL}"
+      GOOGLE_REDIRECT_URL: "${GOOGLE_REDIRECT_URL:-http://localhost:4000/api/v1/auth/google/callback}"
     ports:
-      - "127.0.0.1:4000:4000"
+      - "4000:4000"
     depends_on:
       postgres:
         condition: service_healthy
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000/api/v1}
+    container_name: auroka-frontend
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000/api/v1}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
 
 volumes:
   auroka_pgdata:
