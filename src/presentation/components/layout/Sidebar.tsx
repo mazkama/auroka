@@ -9,7 +9,8 @@ import {
   Receipt,
   Wallet,
   BarChart3,
-  PieChart,
+  CalendarClock,
+  Users,
   Sparkles,
   BookOpen,
   X,
@@ -61,6 +62,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Histori Transaksi', href: '/transactions', icon: Receipt },
     { name: 'Dompet Digital', href: '/wallets', icon: Wallet },
+    { name: 'Tagihan & Langganan', href: '/bills', icon: CalendarClock },
+    { name: 'Titipan Teman', href: '/debts', icon: Users },
     { name: 'Analisis & Laporan', href: '/analytics', icon: BarChart3 },
   ];
 
@@ -113,14 +116,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </p>
       </div>
 
-      {/* Ledger Info Card */}
+      {/* Pencatatan Otomatis Info Card */}
       <div className="rounded-xl bg-[#f8f9ff] p-3 border border-[#c3c6d7]/50 space-y-1 shadow-sm">
         <div className="flex items-center gap-1.5 text-xs font-bold text-[#0b1c30]">
           <ShieldCheck className="h-3.5 w-3.5 text-[#006c49]" />
-          <span>The Ledger System</span>
+          <span>Pencatatan Otomatis</span>
         </div>
         <p className="text-[10px] text-[#434655] leading-relaxed">
-          Saldo dihitung dari kalkulasi Debit & Kredit otomatis.
+          Saldo diperbarui secara otomatis setiap kali ada transaksi baru.
         </p>
       </div>
 

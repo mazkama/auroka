@@ -1,0 +1,101 @@
+{
+  "common": {
+    "appName": "Auroka",
+    "save": "Simpen",
+    "cancel": "Batal",
+    "delete": "Busek",
+    "edit": "Owah",
+    "add": "Tambah",
+    "back": "Wangsul",
+    "loading": "Nenggo sekedhap...",
+    "search": "Padosi...",
+    "filter": "Saring",
+    "all": "Sedaya",
+    "actions": "Aksi",
+    "status": "Kahanan",
+    "total": "Gunggungipun",
+    "confirm": "Konfirmasi",
+    "success": "Kasil",
+    "error": "Wonten Kalepatan",
+    "empty": "Dereng wonten dhata"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "transactions": "Cathetan Arta",
+    "wallets": "Kanthong & Rekening",
+    "bills": "Tagihan & Langganan",
+    "debts": "Patungan & Sambutan",
+    "budgets": "Rancangan Arta",
+    "analytics": "Laporan & Analisis",
+    "profile": "Profil Kula",
+    "settings": "Setelan",
+    "logout": "Miyos / Medal"
+  },
+  "header": {
+    "recordTransaction": "Cathet Arta",
+    "notifications": "Wara-wara",
+    "viewAllNotifications": "Tingali Sedaya Wara-wara",
+    "myProfile": "Profil Kula",
+    "settings": "Setelan",
+    "logout": "Miyos Akun"
+  },
+  "profile": {
+    "title": "Profil Panjenengan",
+    "subtitle": "Ngatur dhata pribadi, foto pasuryan, lan setelan akun panjenengan.",
+    "fullName": "Asma Jangkep",
+    "email": "Serat Elektronik (Email)",
+    "phone": "Nomer Telepon / WhatsApp",
+    "bio": "Katrangan / Bio",
+    "currency": "Mata Uang Baku",
+    "language": "Basa Aplikasi",
+    "saveChanges": "Simpen Owah-owahan",
+    "changePhoto": "Gantos Foto",
+    "verified": "Sampun Sah / Dipun-priksa",
+    "security": "Keamanan & Sandi",
+    "oldPassword": "Sandi Lawas",
+    "newPassword": "Sandi Anyar",
+    "confirmPassword": "Pasthi Sandi Anyar",
+    "updatePassword": "Anyari Sandi"
+  },
+  "transactions": {
+    "title": "Riwayat Transaksi",
+    "subtitle": "Ngatur lan mriksa sedaya arta mlebet, medal, sarta pindhah kanthong.",
+    "add": "Cathet Transaksi Anyar",
+    "typeIncome": "Arta Mlebet",
+    "typeExpense": "Arta Medal",
+    "typeTransfer": "Pindhah Kanthong",
+    "amount": "Gunggunging Arta",
+    "wallet": "Sumber Kanthong",
+    "category": "Golongan",
+    "date": "Tanggal Transaksi",
+    "notes": "Katrangan",
+    "emptyTitle": "Dereng Wonten Cathetan",
+    "emptyDesc": "Monggo dipun-wiwiti nyathet transaksi arta panjenengan supados cetho."
+  },
+  "wallets": {
+    "title": "Kanthong & Rekening",
+    "subtitle": "Ngatur sedaya rekening bank, dompet digital, lan arta awis.",
+    "add": "Tambah Kanthong Anyar",
+    "totalBalance": "Gunggunging Saldo",
+    "emptyTitle": "Dereng Wonten Kanthong",
+    "emptyDesc": "Tambahaken akun kanthong utawi rekening sepisanan panjenengan."
+  },
+  "bills": {
+    "title": "Tagihan & Langganan",
+    "subtitle": "Niteni tagihan ajeg saben wulan sarta langganan aktif panjenengan.",
+    "add": "Tambah Tagihan",
+    "pay": "Bayar Sakmenika",
+    "paid": "Sampun Lunas",
+    "unpaid": "Dereng Dibayar",
+    "emptyTitle": "Boten Wonten Tagihan Aktif",
+    "emptyDesc": "Sedaya tagihan sampun kapungkasan utawi dereng dipun-tambahaken."
+  },
+  "debts": {
+    "title": "Patungan & Sambutan Kanca",
+    "subtitle": "Ngatur blanja patungan lan ngetung piutang kanca kanthi gampil.",
+    "totalReceivable": "Gunggunging Piutang",
+    "markSettled": "Tandhani Lunas",
+    "emptyTitle": "Boten Wonten Tagihan Patungan",
+    "emptyDesc": "Dereng wonten cathetan blanja pesenan kanca ingkang dereng lunas."
+  }
+}

@@ -11,6 +11,7 @@ import {
   Star,
   Award,
   Calendar,
+  CalendarRange,
   FileSpreadsheet,
   FileText,
   ChevronLeft,
@@ -20,6 +21,7 @@ import {
   UploadCloud,
   SlidersHorizontal,
   Clock,
+  Inbox,
 } from 'lucide-react';
 
 const MONTH_NAMES = [
@@ -41,88 +43,39 @@ const AVAILABLE_YEARS = [2024, 2025, 2026, 2027];
 
 type FilterMode = 'MONTHLY' | 'RANGE';
 
-// Simulation calculation generator based on period or date range
-const getAnalyticsData = (
-  mode: FilterMode,
-  monthIndex: number,
-  year: number,
-  startDateStr: string,
-  endDateStr: string
-) => {
-  let seed = 1;
-  let periodLabel = '';
-  let subLabel = '';
-
-  if (mode === 'MONTHLY') {
-    seed = (year - 2024) * 12 + monthIndex + 1;
-    periodLabel = `${MONTH_NAMES[monthIndex]} ${year}`;
-    subLabel = `Bulan Penuh (30-31 Hari)`;
-  } else {
-    const start = new Date(startDateStr);
-    const end = new Date(endDateStr);
-    const diffTime = Math.abs(end.getTime() - start.getTime());
-    const diffDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1);
-    seed = diffDays + start.getDate() + (start.getMonth() + 1) * 3;
-    periodLabel = `${startDateStr} s/d ${endDateStr}`;
-    subLabel = `Rentang ${diffDays} Hari Terpilih`;
-  }
-
-  const baseIncome = 15000000 + (seed % 7) * 1500000 + (monthIndex === 7 ? 2500000 : 0);
-  const baseExpense = 7000000 + ((seed * 3) % 8) * 850000 + (monthIndex === 11 ? 5000000 : 0);
-  const netCashFlow = baseIncome - baseExpense;
-  const savingsRate = Math.max(0, Math.round((netCashFlow / baseIncome) * 100));
-
-  const categories = [
-    { name: 'Makan & Minum', percentage: 35, amount: Math.round(baseExpense * 0.35), color: '#004ac6' },
-    { name: 'Belanja & Pribadi', percentage: 22, amount: Math.round(baseExpense * 0.22), color: '#2563eb' },
-    { name: 'Listrik & Utilitas', percentage: 15, amount: Math.round(baseExpense * 0.15), color: '#0284c7' },
-    { name: 'Transportasi', percentage: 12, amount: Math.round(baseExpense * 0.12), color: '#0d9488' },
-    { name: 'Hiburan', percentage: 9, amount: Math.round(baseExpense * 0.09), color: '#7c3aed' },
-    { name: 'Lainnya', percentage: 7, amount: Math.round(baseExpense * 0.07), color: '#64748b' },
-  ];
-
-  const worthinessBreakdown = [
-    { stars: 5, label: 'Sangat Bermanfaat / Wajib', percentage: 65, count: 18, color: 'text-amber-500' },
-    { stars: 4, label: 'Penting & Bernilai Baik', percentage: 22, count: 8, color: 'text-amber-400' },
-    { stars: 3, label: 'Cukup Bermanfaat', percentage: 8, count: 3, color: 'text-amber-300' },
-    { stars: 2, label: 'Kurang Diperlukan (Impulsif)', percentage: 4, count: 2, color: 'text-rose-400' },
-    { stars: 1, label: 'Menyesal / Tidak Bermanfaat', percentage: 1, count: 1, color: 'text-rose-600' },
-  ];
-
-  return {
-    periodLabel,
-    subLabel,
-    income: baseIncome,
-    expense: baseExpense,
-    netCashFlow,
-    savingsRate,
-    categories,
-    worthinessBreakdown,
-    friendOrdersCount: 3 + (seed % 4),
-    friendOrdersTotal: 450000 + (seed % 5) * 120000,
-  };
+const CATEGORY_COLORS: Record<string, string> = {
+  'Makan & Minum': '#004ac6',
+  'Belanja': '#00aa13',
+  'Belanja & Pribadi': '#2563eb',
+  'Transportasi': '#e11d48',
+  'Listrik & Utilitas': '#0284c7',
+  'Listrik & Air': '#d97706',
+  'Hiburan': '#9333ea',
+  'Kesehatan': '#06b6d4',
+  'Investasi': '#3b82f6',
+  'Gaji': '#10b981',
+  'Lainnya': '#64748b',
 };
 
 export default function AnalyticsPage() {
-  const { summary, wallets, addTransaction } = useFinance();
+  const { summary, wallets, transactions, addTransaction, transferFunds } = useFinance();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Filter Mode: 'MONTHLY' (Bulan/Tahun) or 'RANGE' (Rentang Tanggal)
   const [filterMode, setFilterMode] = useState<FilterMode>('MONTHLY');
 
-  // Month & Year Filter State (Default: Agustus 2026)
-  const [selectedMonth, setSelectedMonth] = useState(7);
-  const [selectedYear, setSelectedYear] = useState(2026);
+  const now = new Date();
+  const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
+  const [selectedYear, setSelectedYear] = useState(now.getFullYear());
 
-  // Custom Date Range State (Default: 01 Agu 2026 - 24 Agu 2026)
-  const [startDate, setStartDate] = useState('2026-08-01');
-  const [endDate, setEndDate] = useState('2026-08-24');
+  // Custom Date Range State (Default: awal bulan ini s/d hari ini)
+  const defaultStartStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+  const defaultEndStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+  const [startDate, setStartDate] = useState(defaultStartStr);
+  const [endDate, setEndDate] = useState(defaultEndStr);
 
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-
-  const analyticsData = useMemo(() => {
-    return getAnalyticsData(filterMode, selectedMonth, selectedYear, startDate, endDate);
-  }, [filterMode, selectedMonth, selectedYear, startDate, endDate]);
 
   const handlePrevMonth = () => {
     if (selectedMonth === 0) {
@@ -149,45 +102,156 @@ export default function AnalyticsPage() {
     }, 4000);
   };
 
-  const handleExportExcel = () => {
-    showToast(`📊 Laporan Keuangan Excel (${analyticsData.periodLabel}) berhasil diekspor.`);
-  };
-
-  const handleExportPDF = () => {
-    showToast(`📑 Dokumen PDF Laporan Finansial (${analyticsData.periodLabel}) berhasil disiapkan.`);
-  };
-
   // Quick Preset Handlers for Date Range
   const setDatePreset = (preset: 'today' | '7d' | '30d' | 'thisMonth' | 'lastMonth' | 'thisYear') => {
+    const today = new Date();
+    const toDateStr = (d: Date) =>
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
     if (preset === 'today') {
-      setStartDate('2026-08-24');
-      setEndDate('2026-08-24');
+      const s = toDateStr(today);
+      setStartDate(s);
+      setEndDate(s);
     } else if (preset === '7d') {
-      setStartDate('2026-08-17');
-      setEndDate('2026-08-24');
+      const start = new Date(today);
+      start.setDate(today.getDate() - 7);
+      setStartDate(toDateStr(start));
+      setEndDate(toDateStr(today));
     } else if (preset === '30d') {
-      setStartDate('2026-07-25');
-      setEndDate('2026-08-24');
+      const start = new Date(today);
+      start.setDate(today.getDate() - 30);
+      setStartDate(toDateStr(start));
+      setEndDate(toDateStr(today));
     } else if (preset === 'thisMonth') {
-      setStartDate('2026-08-01');
-      setEndDate('2026-08-31');
+      const start = new Date(today.getFullYear(), today.getMonth(), 1);
+      const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      setStartDate(toDateStr(start));
+      setEndDate(toDateStr(end));
     } else if (preset === 'lastMonth') {
-      setStartDate('2026-07-01');
-      setEndDate('2026-07-31');
+      const start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+      const end = new Date(today.getFullYear(), today.getMonth(), 0);
+      setStartDate(toDateStr(start));
+      setEndDate(toDateStr(end));
     } else if (preset === 'thisYear') {
-      setStartDate('2026-01-01');
-      setEndDate('2026-12-31');
+      const start = new Date(today.getFullYear(), 0, 1);
+      const end = new Date(today.getFullYear(), 11, 31);
+      setStartDate(toDateStr(start));
+      setEndDate(toDateStr(end));
     }
   };
 
-  const isCurrentMonth =
-    filterMode === 'MONTHLY' && selectedMonth === 7 && selectedYear === 2026;
+  // REAL DATA CALCULATION BASED ON ACTUAL USER TRANSACTIONS
+  const analyticsData = useMemo(() => {
+    let filteredTxs = transactions;
+    let periodLabel = '';
+    let subLabel = '';
 
-  const displayIncome = isCurrentMonth && summary ? summary.monthlyIncome : analyticsData.income;
-  const displayExpense = isCurrentMonth && summary ? summary.monthlyExpense : analyticsData.expense;
-  const displayNet = isCurrentMonth && summary ? summary.netCashFlow : analyticsData.netCashFlow;
-  const displaySavingsRate =
-    isCurrentMonth && summary ? summary.savingsRate : analyticsData.savingsRate;
+    if (filterMode === 'MONTHLY') {
+      const monthPrefix = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}`;
+      filteredTxs = transactions.filter((tx) => tx.transactionDate?.startsWith(monthPrefix));
+      periodLabel = `${MONTH_NAMES[selectedMonth]} ${selectedYear}`;
+      subLabel = `Bulan Penuh (30-31 Hari)`;
+    } else {
+      filteredTxs = transactions.filter(
+        (tx) => tx.transactionDate >= startDate && tx.transactionDate <= endDate
+      );
+      periodLabel = `${startDate} s/d ${endDate}`;
+      subLabel = `Rentang Terpilih`;
+    }
+
+    let income = 0;
+    let expense = 0;
+    const categoryTotals: Record<string, number> = {};
+    const ratingCounts: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    let totalRatedItems = 0;
+    let friendOrdersCount = 0;
+    let friendOrdersTotal = 0;
+
+    filteredTxs.forEach((tx) => {
+      if (tx.type === 'IN' || tx.type === 'INITIAL_BALANCE') {
+        income += tx.totalAmount;
+      } else if (tx.type === 'OUT') {
+        expense += tx.totalAmount;
+
+        if (tx.items && tx.items.length > 0) {
+          tx.items.forEach((item) => {
+            const cat = item.categoryName || 'Lainnya';
+            categoryTotals[cat] = (categoryTotals[cat] || 0) + item.amount;
+
+            if (item.rating && item.rating >= 1 && item.rating <= 5) {
+              ratingCounts[item.rating] = (ratingCounts[item.rating] || 0) + 1;
+              totalRatedItems++;
+            }
+
+            if (item.isFriendOrder) {
+              friendOrdersCount++;
+              friendOrdersTotal += item.amount;
+            }
+          });
+        } else {
+          categoryTotals['Lainnya'] = (categoryTotals['Lainnya'] || 0) + tx.totalAmount;
+        }
+      }
+    });
+
+    const netCashFlow = income - expense;
+    let savingsRate = 0;
+    if (income > 0) {
+      savingsRate = Math.max(0, Math.round((netCashFlow / income) * 100));
+    }
+
+    const categories = Object.entries(categoryTotals).map(([name, amount]) => ({
+      name,
+      amount,
+      percentage: expense > 0 ? Math.round((amount / expense) * 100) : 0,
+      color: CATEGORY_COLORS[name] || '#64748b',
+    })).sort((a, b) => b.amount - a.amount);
+
+    const worthinessLabels: Record<number, string> = {
+      5: 'Sangat Bermanfaat / Wajib',
+      4: 'Penting & Bernilai Baik',
+      3: 'Cukup Bermanfaat',
+      2: 'Kurang Diperlukan (Impulsif)',
+      1: 'Menyesal / Tidak Bermanfaat',
+    };
+
+    const worthinessBreakdown = [5, 4, 3, 2, 1].map((stars) => {
+      const count = ratingCounts[stars] || 0;
+      return {
+        stars,
+        label: worthinessLabels[stars],
+        count,
+        percentage: totalRatedItems > 0 ? Math.round((count / totalRatedItems) * 100) : 0,
+      };
+    });
+
+    return {
+      periodLabel,
+      subLabel,
+      income,
+      expense,
+      netCashFlow,
+      savingsRate,
+      categories,
+      worthinessBreakdown,
+      friendOrdersCount,
+      friendOrdersTotal,
+      hasData: filteredTxs.length > 0,
+    };
+  }, [transactions, filterMode, selectedMonth, selectedYear, startDate, endDate]);
+
+  const handleExportExcel = () => {
+    showToast(`Laporan Keuangan Excel (${analyticsData.periodLabel}) berhasil diekspor.`);
+  };
+
+  const handleExportPDF = () => {
+    showToast(`Dokumen PDF Laporan Finansial (${analyticsData.periodLabel}) berhasil disiapkan.`);
+  };
+
+  const displayIncome = analyticsData.income;
+  const displayExpense = analyticsData.expense;
+  const displayNet = analyticsData.netCashFlow;
+  const displaySavingsRate = analyticsData.savingsRate;
 
   return (
     <AppLayout onOpenAddModal={() => setIsModalOpen(true)}>
@@ -213,7 +277,7 @@ export default function AnalyticsPage() {
                 </span>
               </div>
               <p className="text-xs text-[#434655] mt-1">
-                Evaluasi kinerja arus kas, rasio tabungan, dan skor kepuasan belanja (Worthiness) per periode.
+                Evaluasi kinerja arus kas, rasio tabungan, dan skor kepuasan belanja (Worthiness) berbasis data riil transaksi Anda.
               </p>
             </div>
 
@@ -245,23 +309,25 @@ export default function AnalyticsPage() {
             <div className="flex items-center gap-1 bg-[#f1f5f9] p-1 rounded-xl self-start">
               <button
                 onClick={() => setFilterMode('MONTHLY')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   filterMode === 'MONTHLY'
                     ? 'bg-white text-[#004ac6] shadow-xs'
                     : 'text-[#64748b] hover:text-[#0b1c30]'
                 }`}
               >
-                📅 Pilihan Bulan & Tahun
+                <Calendar className="h-3.5 w-3.5" />
+                <span>Pilihan Bulan & Tahun</span>
               </button>
               <button
                 onClick={() => setFilterMode('RANGE')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   filterMode === 'RANGE'
                     ? 'bg-white text-[#004ac6] shadow-xs'
                     : 'text-[#64748b] hover:text-[#0b1c30]'
                 }`}
               >
-                📆 Rentang Tanggal Kustom
+                <CalendarRange className="h-3.5 w-3.5" />
+                <span>Rentang Tanggal Kustom</span>
               </button>
             </div>
 
@@ -349,7 +415,7 @@ export default function AnalyticsPage() {
                 { label: '30 Hari Terakhir', preset: '30d' as const },
                 { label: 'Bulan Ini', preset: 'thisMonth' as const },
                 { label: 'Bulan Lalu', preset: 'lastMonth' as const },
-                { label: 'Tahun 2026', preset: 'thisYear' as const },
+                { label: `Tahun ${now.getFullYear()}`, preset: 'thisYear' as const },
               ].map((p) => (
                 <button
                   key={p.preset}
@@ -482,14 +548,17 @@ export default function AnalyticsPage() {
                   </span>
                 </div>
                 <div className="h-3.5 w-full rounded-full bg-[#f1f5f9] overflow-hidden">
-                  <div className="h-full rounded-full bg-[#006c49] w-full transition-all duration-500" />
+                  <div
+                    className="h-full rounded-full bg-[#006c49] transition-all duration-500"
+                    style={{ width: displayIncome > 0 ? '100%' : '0%' }}
+                  />
                 </div>
               </div>
 
               <div className="space-y-1.5">
                 <div className="flex justify-between text-xs font-semibold">
                   <span className="text-[#475569]">
-                    Total Beban Pengeluaran ({Math.min(100, Math.round((displayExpense / displayIncome) * 100))}%)
+                    Total Beban Pengeluaran ({displayIncome > 0 ? Math.min(100, Math.round((displayExpense / displayIncome) * 100)) : 0}%)
                   </span>
                   <span className="text-[#ba1a1a] font-bold font-mono">
                     {formatRupiah(displayExpense)}
@@ -499,7 +568,7 @@ export default function AnalyticsPage() {
                   <div
                     className="h-full rounded-full bg-[#ba1a1a] transition-all duration-500"
                     style={{
-                      width: `${Math.min(100, Math.round((displayExpense / displayIncome) * 100))}%`,
+                      width: displayIncome > 0 ? `${Math.min(100, Math.round((displayExpense / displayIncome) * 100))}%` : '0%',
                     }}
                   />
                 </div>
@@ -511,28 +580,38 @@ export default function AnalyticsPage() {
               <h4 className="text-xs font-bold uppercase tracking-wider text-[#94a3b8]">
                 Distribusi Berdasarkan Kategori
               </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {analyticsData.categories.map((cat) => (
-                  <div
-                    key={cat.name}
-                    className="flex items-center justify-between p-3 rounded-xl bg-[#f8fafc] border border-[#e2e8f0] text-xs hover:bg-white transition-colors"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="w-3 h-3 rounded-full shrink-0"
-                        style={{ backgroundColor: cat.color }}
-                      />
-                      <span className="font-bold text-[#0f172a]">{cat.name}</span>
+              {analyticsData.categories.length === 0 ? (
+                <div className="p-8 text-center bg-[#f8fafc] rounded-xl border border-dashed border-[#cbd5e1] space-y-2">
+                  <Inbox className="h-8 w-8 text-[#94a3b8] mx-auto" />
+                  <p className="text-xs font-bold text-[#0f172a]">Belum Ada Pengeluaran Pada Periode Ini</p>
+                  <p className="text-[11px] text-[#64748b]">
+                    Transaksi pengeluaran yang dicatat akan dikelompokkan secara otomatis di sini.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  {analyticsData.categories.map((cat) => (
+                    <div
+                      key={cat.name}
+                      className="flex items-center justify-between p-3 rounded-xl bg-[#f8fafc] border border-[#e2e8f0] text-xs hover:bg-white transition-colors"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="w-3 h-3 rounded-full shrink-0"
+                          style={{ backgroundColor: cat.color }}
+                        />
+                        <span className="font-bold text-[#0f172a]">{cat.name}</span>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-mono font-bold text-[#0b1c30]">
+                          {formatRupiah(cat.amount)}
+                        </span>
+                        <span className="text-[10px] text-[#64748b] block">{cat.percentage}%</span>
+                      </div>
                     </div>
-                    <div className="text-right">
-                      <span className="font-mono font-bold text-[#0b1c30]">
-                        {formatRupiah(cat.amount)}
-                      </span>
-                      <span className="text-[10px] text-[#64748b] block">{cat.percentage}%</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
 
@@ -563,13 +642,23 @@ export default function AnalyticsPage() {
                     className="flex items-center justify-between p-2.5 rounded-xl bg-[#f8fafc] border border-[#e2e8f0] text-xs hover:bg-white transition-colors"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="flex text-amber-400 text-xs tracking-tighter">
-                        {'★'.repeat(item.stars)}
-                        {'☆'.repeat(5 - item.stars)}
-                      </span>
+                      <div className="flex items-center gap-0.5">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            className={`h-3 w-3 ${
+                              i < item.stars
+                                ? 'text-amber-400 fill-amber-400'
+                                : 'text-[#cbd5e1]'
+                            }`}
+                          />
+                        ))}
+                      </div>
                       <span className="font-medium text-[#475569] text-[11px]">{item.label}</span>
                     </div>
-                    <span className="font-bold font-mono text-[#004ac6]">{item.percentage}%</span>
+                    <span className="font-bold font-mono text-[#004ac6]">
+                      {item.percentage}% ({item.count})
+                    </span>
                   </div>
                 ))}
               </div>
@@ -605,6 +694,7 @@ export default function AnalyticsPage() {
         onClose={() => setIsModalOpen(false)}
         wallets={wallets}
         onAddTransaction={addTransaction}
+        onTransferFunds={transferFunds}
       />
     </AppLayout>
   );

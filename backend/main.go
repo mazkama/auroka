@@ -7,6 +7,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/mazkama/auroka/backend/config"
 	"github.com/mazkama/auroka/backend/routes"
+	"github.com/mazkama/auroka/backend/services"
 )
 
 func main() {
@@ -18,6 +19,9 @@ func main() {
 	// Initialize Configs
 	config.InitOAuth()
 	config.ConnectDB()
+
+	// Start background workers
+	services.StartNotificationWorker()
 
 	// Setup Router
 	r := routes.SetupRouter()

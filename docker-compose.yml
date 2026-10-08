@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: auroka-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER:-auroka_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-auroka_password_secure123}
+      POSTGRES_DB: ${DB_NAME:-auroka_db}
+    volumes:
+      - auroka_pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-auroka_user} -d ${DB_NAME:-auroka_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: auroka-backend
+    restart: always
+    env_file:
+      - .env
+    environment:
+      PORT: "${PORT:-4000}"
+      DB_HOST: "${DB_HOST:-postgres}"
+      DB_USER: "${DB_USER:-auroka_user}"
+      DB_PASSWORD: "${DB_PASSWORD:-auroka_password_secure123}"
+      DB_NAME: "${DB_NAME:-auroka_db}"
+      DB_PORT: "${DB_PORT:-5432}"
+      JWT_SECRET: "${JWT_SECRET}"
+      RESEND_API_KEY: "${RESEND_API_KEY}"
+      RESEND_FROM_EMAIL: "${RESEND_FROM_EMAIL}"
+      FRONTEND_URL: "${FRONTEND_URL}"
+      GOOGLE_CLIENT_ID: "${GOOGLE_CLIENT_ID}"
+      GOOGLE_CLIENT_SECRET: "${GOOGLE_CLIENT_SECRET}"
+      GOOGLE_REDIRECT_URL: "${GOOGLE_REDIRECT_URL}"
+    ports:
+      - "127.0.0.1:4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  auroka_pgdata:

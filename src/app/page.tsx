@@ -34,7 +34,7 @@ export default function LandingPage() {
         <div className="inline-flex items-center gap-2 bg-[#dce9ff] border border-[#c3c6d7]/50 rounded-full px-4 py-1.5 mb-6 shadow-sm">
           <span className="w-2.5 h-2.5 rounded-full bg-[#006c49] animate-pulse"></span>
           <span className="text-xs font-semibold text-[#004ac6]">
-            Terintegrasi Clean Architecture & Ledger System
+            Pencatatan Finansial Cerdas & Akurat
           </span>
         </div>
 
@@ -135,11 +135,11 @@ export default function LandingPage() {
                       <div className="flex items-center gap-2 mb-1">
                         <span className="w-2.5 h-2.5 rounded-full bg-[#6cf8bb]"></span>
                         <h3 className="font-bold text-sm text-white/90">
-                          Total Liquid Balance (The Ledger System)
+                          Dompet & Rekening Terhubung
                         </h3>
                       </div>
                       <p className="text-xs text-white/80">
-                        5 Akun Terhubung (BCA, Mandiri, GoPay, Binance, Tunai)
+                        5 Akun Aktif (BCA, Mandiri, GoPay, Binance, Tunai)
                       </p>
                     </div>
                     <span className="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold">
@@ -149,7 +149,7 @@ export default function LandingPage() {
 
                   <div className="relative z-10">
                     <span className="text-xs text-white/80 uppercase font-semibold tracking-wider">
-                      Total Kekayaan Likuid
+                      Total Saldo
                     </span>
                     <h2 className="text-3xl sm:text-4xl font-extrabold font-mono tracking-tight text-white mt-1">
                       Rp 88.300.000
@@ -199,7 +199,13 @@ export default function LandingPage() {
                     <UserCheck className="h-3 w-3" />
                     <span>Nitip Dimas (Rp 100.000)</span>
                   </span>
-                  <span className="flex text-amber-400">★★★★★</span>
+                  <span className="flex items-center gap-0.5 text-amber-500">
+                    <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                    <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                    <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                    <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                    <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+                  </span>
                 </div>
               </div>
             </div>
@@ -212,10 +218,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
             <h2 className="text-3xl font-extrabold text-[#0b1c30] tracking-tight">
-              Fitur Keuangan Enterprise Auroka
+              Fitur Finansial Unggulan Auroka
             </h2>
             <p className="text-sm text-[#434655]">
-              Dirancang khusus untuk menghadirkan integritas data finansial akurat dan transparan.
+              Dirancang khusus untuk menghadirkan pembukuan yang praktis, transparan, dan terpercaya.
             </p>
           </div>
 
@@ -225,10 +231,10 @@ export default function LandingPage() {
                 <ShieldCheck className="h-6 w-6" />
               </div>
               <h3 className="text-lg font-bold text-[#0b1c30]">
-                The Ledger System
+                Pencatatan Saldo Otomatis
               </h3>
               <p className="text-xs text-[#434655] leading-relaxed">
-                Saldo adalah hasil penjumlahan (`SUM`) dari riwayat transaksi Debit & Kredit. Mencegah manipulasi statis dan menjamin jejak audit 100% sempurna.
+                Setiap mutasi pemasukan dan pengeluaran langsung menyesuaikan saldo rekening secara presisi dan akurat tanpa selisih.
               </p>
             </div>
 
@@ -237,10 +243,10 @@ export default function LandingPage() {
                 <Receipt className="h-6 w-6" />
               </div>
               <h3 className="text-lg font-bold text-[#0b1c30]">
-                Header-Detail & Nitip Teman
+                Rincian Item & Titipan Teman
               </h3>
               <p className="text-xs text-[#434655] leading-relaxed">
-                Catat transaksi hingga granularitas per item. Sertakan opsi Nitip Teman beserta nama teman dan Worthiness Rating 1-5 ⭐.
+                Catat belanja hingga detail per barang. Tersedia opsi catat titipan teman serta penilaian kepuasan transaksi dengan bintang.
               </p>
             </div>
 
@@ -249,10 +255,10 @@ export default function LandingPage() {
                 <Layers className="h-6 w-6" />
               </div>
               <h3 className="text-lg font-bold text-[#0b1c30]">
-                Clean Architecture Standard
+                Keamanan & Performa Andal
               </h3>
               <p className="text-xs text-[#434655] leading-relaxed">
-                Pemisahan domain entitas, use cases, dan UI. Mendukung migrasi instan dari Mock Data ke Server Golang/PostgreSQL API.
+                Akses cepat, data tersinkronisasi mulus, serta perlindungan data pribadi berstandar industri modern untuk ketenangan Anda.
               </p>
             </div>
           </div>

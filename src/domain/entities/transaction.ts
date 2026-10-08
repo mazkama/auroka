@@ -21,6 +21,8 @@ export interface TransactionItem {
   amount: number;
   isFriendOrder?: boolean; // Opsi Nitip Teman
   friendName?: string;
+  isSettled?: boolean; // Status pelunasan titipan
+  settledAt?: string | null;
   rating?: number; // Worthiness rating 1-5
 }
 
@@ -40,7 +42,7 @@ export interface Transaction {
 }
 
 export interface CreateTransactionDTO {
-  userId: string;
+  userId?: string;
   walletId: string;
   type: TransactionType;
   title: string;
@@ -61,5 +63,14 @@ export interface UpdateTransactionDTO {
   cityName?: string;
   note?: string;
   items?: Omit<TransactionItem, 'id' | 'transactionId'>[];
+}
+
+export interface TransferDTO {
+  sourceWalletId: string;
+  destWalletId: string;
+  amount: number;
+  adminFee?: number;
+  transactionDate?: string;
+  note?: string;
 }
 

@@ -1,0 +1,101 @@
+{
+  "common": {
+    "appName": "Auroka",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "delete": "Hapus",
+    "edit": "Edit",
+    "add": "Tambah",
+    "back": "Kembali",
+    "loading": "Memuat...",
+    "search": "Cari...",
+    "filter": "Filter",
+    "all": "Semua",
+    "actions": "Aksi",
+    "status": "Status",
+    "total": "Total",
+    "confirm": "Konfirmasi",
+    "success": "Berhasil",
+    "error": "Terjadi Kesalahan",
+    "empty": "Belum ada data"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "transactions": "Transaksi",
+    "wallets": "Dompet & Rekening",
+    "bills": "Tagihan & Langganan",
+    "debts": "Split Bill & Piutang",
+    "budgets": "Anggaran",
+    "analytics": "Analisis & Laporan",
+    "profile": "Profil Akun",
+    "settings": "Pengaturan",
+    "logout": "Keluar"
+  },
+  "header": {
+    "recordTransaction": "Catat Transaksi",
+    "notifications": "Notifikasi",
+    "viewAllNotifications": "Lihat Semua Riwayat Notifikasi",
+    "myProfile": "Profil Akun",
+    "settings": "Pengaturan",
+    "logout": "Keluar Akun"
+  },
+  "profile": {
+    "title": "Profil Pengguna",
+    "subtitle": "Kelola data pribadi, foto profil, dan preferensi akun Anda.",
+    "fullName": "Nama Lengkap",
+    "email": "Alamat Email",
+    "phone": "Nomor Telepon / WhatsApp",
+    "bio": "Bio / Catatan",
+    "currency": "Mata Uang Utama",
+    "language": "Bahasa Aplikasi",
+    "saveChanges": "Simpan Perubahan",
+    "changePhoto": "Ganti Foto",
+    "verified": "Terverifikasi",
+    "security": "Keamanan & Kata Sandi",
+    "oldPassword": "Kata Sandi Lama",
+    "newPassword": "Kata Sandi Baru",
+    "confirmPassword": "Konfirmasi Kata Sandi Baru",
+    "updatePassword": "Perbarui Kata Sandi"
+  },
+  "transactions": {
+    "title": "Histori Transaksi",
+    "subtitle": "Kelola dan pantau seluruh arus kas masuk, keluar, dan transfer.",
+    "add": "Catat Transaksi Baru",
+    "typeIncome": "Pemasukan",
+    "typeExpense": "Pengeluaran",
+    "typeTransfer": "Transfer Antar Dompet",
+    "amount": "Nominal",
+    "wallet": "Sumber Dompet",
+    "category": "Kategori",
+    "date": "Tanggal Transaksi",
+    "notes": "Catatan / Keterangan",
+    "emptyTitle": "Belum Ada Transaksi",
+    "emptyDesc": "Mulai catat transaksi pertama Anda untuk melacak arus kas secara akurat."
+  },
+  "wallets": {
+    "title": "Dompet & Rekening",
+    "subtitle": "Kelola berbagai rekening bank, e-wallet, dan uang tunai Anda.",
+    "add": "Tambah Dompet Baru",
+    "totalBalance": "Total Saldo Bersih",
+    "emptyTitle": "Belum Ada Dompet",
+    "emptyDesc": "Tambahkan akun dompet atau rekening bank pertama Anda."
+  },
+  "bills": {
+    "title": "Tagihan & Langganan",
+    "subtitle": "Pantau tagihan rutin bulanan dan langganan aktif Anda.",
+    "add": "Tambah Tagihan",
+    "pay": "Bayar Sekarang",
+    "paid": "Lunas",
+    "unpaid": "Belum Dibayar",
+    "emptyTitle": "Tidak Ada Tagihan Aktif",
+    "emptyDesc": "Semua tagihan rutin Anda telah terselesaikan atau belum ditambahkan."
+  },
+  "debts": {
+    "title": "Split Bill & Piutang Teman",
+    "subtitle": "Kelola patungan belanja dan tagih piutang teman dengan mudah.",
+    "totalReceivable": "Total Piutang",
+    "markSettled": "Tandai Lunas",
+    "emptyTitle": "Tidak Ada Tagihan Patungan",
+    "emptyDesc": "Belum ada catatan belanja berlabel pesanan teman yang belum lunas."
+  }
+}

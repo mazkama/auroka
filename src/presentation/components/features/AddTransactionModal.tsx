@@ -3,15 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import { Wallet } from '@/domain/entities/wallet';
 import { Transaction, Category, TransactionType } from '@/domain/entities/transaction';
-import { CURRENT_USER_ID } from '@/infrastructure/mock/mockData';
-import { X, Plus, UserCheck, Check } from 'lucide-react';
+import { X, Plus, UserCheck, Check, ArrowRightLeft } from 'lucide-react';
 
 interface AddTransactionModalProps {
   isOpen: boolean;
   onClose: () => void;
   wallets: Wallet[];
   onAddTransaction: (data: {
-    userId: string;
     walletId: string;
     type: TransactionType;
     title: string;
@@ -31,6 +29,14 @@ interface AddTransactionModalProps {
   }) => Promise<void>;
   transactionToEdit?: Transaction | null;
   onEditTransaction?: (id: string, data: any) => Promise<void>;
+  onTransferFunds?: (
+    sourceWalletId: string,
+    destWalletId: string,
+    amount: number,
+    adminFee?: number,
+    note?: string,
+    date?: string
+  ) => Promise<void>;
 }
 
 const CATEGORIES: Category[] = [
@@ -52,6 +58,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   onAddTransaction,
   transactionToEdit,
   onEditTransaction,
+  onTransferFunds,
 }) => {
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
@@ -60,6 +67,8 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
   const [customCategory, setCustomCategory] = useState('');
   const [isCustomCategory, setIsCustomCategory] = useState(false);
   const [walletId, setWalletId] = useState(wallets[0]?.id || 'w-1');
+  const [destWalletId, setDestWalletId] = useState(wallets[1]?.id || wallets[0]?.id || 'w-2');
+  const [adminFee, setAdminFee] = useState('');
   const [locationName, setLocationName] = useState('');
   const [isFriendOrder, setIsFriendOrder] = useState(false);
   const [friendName, setFriendName] = useState('');
@@ -75,6 +84,7 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
       setWalletId(transactionToEdit.walletId);
       setLocationName(transactionToEdit.locationName || '');
       setNote(transactionToEdit.note || '');
+      setAdminFee('');
 
       const firstItem = transactionToEdit.items?.[0];
       if (firstItem) {
@@ -103,6 +113,8 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
       setCustomCategory('');
       setIsCustomCategory(false);
       setWalletId(wallets[0]?.id || 'w-1');
+      setDestWalletId(wallets[1]?.id || wallets[0]?.id || 'w-2');
+      setAdminFee('');
       setLocationName('');
       setIsFriendOrder(false);
       setFriendName('');
@@ -115,8 +127,72 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !amount) {
-      setError('Judul dan nominal transaksi wajib diisi');
+
+    const numAmount = parseFloat(amount);
+    if (isNaN(numAmount) || numAmount <= 0) {
+      setError('Nominal harus berupa angka valid lebih dari 0');
+      return;
+    }
+
+    if (type === 'TRANSFER') {
+      if (walletId === destWalletId) {
+        setError('Dompet asal dan dompet tujuan tidak boleh sama');
+        return;
+      }
+
+      const numAdminFee = adminFee ? parseFloat(adminFee) : 0;
+      if (adminFee && (isNaN(numAdminFee) || numAdminFee < 0)) {
+        setError('Biaya admin harus berupa angka valid');
+        return;
+      }
+
+      try {
+        setSubmitting(true);
+        setError('');
+
+        if (onTransferFunds) {
+          await onTransferFunds(
+            walletId,
+            destWalletId,
+            numAmount,
+            numAdminFee,
+            note || title || 'Transfer Antar Dompet'
+          );
+        } else {
+          // Fallback: create transfer transaction
+          const sourceWallet = wallets.find((w) => w.id === walletId);
+          const destWallet = wallets.find((w) => w.id === destWalletId);
+          await onAddTransaction({
+            walletId,
+            type: 'TRANSFER',
+            title: title || `Transfer ke ${destWallet ? destWallet.name : 'Dompet'}`,
+            totalAmount: numAmount,
+            note,
+            items: [
+              {
+                itemName: 'Transfer Keluar',
+                categoryId: 'cat-transfer',
+                categoryName: 'Lainnya',
+                amount: numAmount,
+                rating: 5,
+              },
+            ],
+          });
+        }
+
+        onClose();
+      } catch (err: unknown) {
+        setError(
+          err instanceof Error ? err.message : 'Gagal memproses transfer'
+        );
+      } finally {
+        setSubmitting(false);
+      }
+      return;
+    }
+
+    if (!title) {
+      setError('Judul / nama transaksi wajib diisi');
       return;
     }
 
@@ -126,17 +202,10 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
       return;
     }
 
-    const numAmount = parseFloat(amount);
-    if (isNaN(numAmount) || numAmount <= 0) {
-      setError('Nominal harus berupa angka valid lebih dari 0');
-      return;
-    }
-
     try {
       setSubmitting(true);
       setError('');
       const txPayload = {
-        userId: CURRENT_USER_ID,
         walletId,
         type,
         title,
@@ -185,10 +254,18 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
         <div className="flex items-center justify-between p-5 border-b border-[#f1f5f9] bg-white">
           <div>
             <h3 className="text-lg font-bold text-[#0f172a]">
-              {transactionToEdit ? 'Edit Transaksi Auroka' : 'Catat Transaksi Auroka'}
+              {transactionToEdit
+                ? 'Edit Transaksi Auroka'
+                : type === 'TRANSFER'
+                ? 'Transfer Antar Dompet'
+                : 'Catat Transaksi Auroka'}
             </h3>
             <p className="text-[11px] text-[#64748b]">
-              {transactionToEdit ? 'Perbarui jejak audit & rekonsiliasi saldo buku besar' : 'Arsitektur Header-Detail & Ledger System'}
+              {transactionToEdit
+                ? 'Perbarui detail transaksi dan sesuaikan saldo dompet'
+                : type === 'TRANSFER'
+                ? 'Pindahkan saldo antar dompet secara atomik dan otomatis'
+                : 'Catat transaksi belanja, pemasukan, atau titipan teman'}
             </p>
           </div>
           <button
@@ -247,146 +324,239 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">
-              Judul / Nama Transaksi
-            </label>
-            <input
-              type="text"
-              placeholder="Contoh: Makan Malam Resto & Cafe"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full rounded-xl bg-white border border-[#e2e8f0] px-3.5 py-2.5 text-[#0f172a] placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 focus:border-[#004ac6] transition-shadow text-sm"
-            />
-          </div>
+          {type === 'TRANSFER' ? (
+            /* TRANSFER FORM VIEW */
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">
+                    Dari Dompet (Sumber)
+                  </label>
+                  <select
+                    value={walletId}
+                    onChange={(e) => setWalletId(e.target.value)}
+                    className="w-full rounded-xl bg-white border border-[#e2e8f0] px-3.5 py-2.5 text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 focus:border-[#004ac6] transition-shadow text-sm"
+                  >
+                    {wallets.map((w) => (
+                      <option key={w.id} value={w.id}>
+                        {w.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">
-              Total Nominal (IDR)
-            </label>
-            <div className="relative">
-              <span className="absolute left-3.5 top-2.5 text-[#64748b] font-mono text-sm">Rp</span>
-              <input
-                type="number"
-                placeholder="Contoh: 150000"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="w-full rounded-xl bg-white border border-[#e2e8f0] pl-10 pr-3.5 py-2.5 text-[#0f172a] font-mono placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 focus:border-[#004ac6] transition-shadow text-sm"
-              />
-            </div>
-          </div>
+                <div>
+                  <label className="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">
+                    Ke Dompet (Tujuan)
+                  </label>
+                  <select
+                    value={destWalletId}
+                    onChange={(e) => setDestWalletId(e.target.value)}
+                    className="w-full rounded-xl bg-white border border-[#e2e8f0] px-3.5 py-2.5 text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 focus:border-[#004ac6] transition-shadow text-sm"
+                  >
+                    {wallets.map((w) => (
+                      <option key={w.id} value={w.id} disabled={w.id === walletId}>
+                        {w.name} {w.id === walletId ? '(Sama dengan asal)' : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-xs font-semibold text-[#64748b] uppercase tracking-wider">
-                  Kategori
+              <div>
+                <label className="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">
+                  Nominal Transfer (IDR)
                 </label>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsCustomCategory(!isCustomCategory);
-                    if (!isCustomCategory) {
-                      setCustomCategory('');
-                    }
-                  }}
-                  className="text-[10px] font-bold text-[#004ac6] hover:underline"
-                >
-                  {isCustomCategory ? '← Pilih Preset' : '+ Tulis Sendiri'}
-                </button>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-2.5 text-[#64748b] font-mono text-sm">Rp</span>
+                  <input
+                    type="number"
+                    placeholder="Contoh: 500000"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    required
+                    className="w-full rounded-xl bg-white border border-[#e2e8f0] pl-10 pr-3.5 py-2.5 text-[#0f172a] font-mono placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 focus:border-[#004ac6] transition-shadow text-sm"
+                  />
+                </div>
               </div>
 
-              {isCustomCategory ? (
+              <div>
+                <label className="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">
+                  Biaya Admin (Opsional)
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-2.5 text-[#64748b] font-mono text-sm">Rp</span>
+                  <input
+                    type="number"
+                    placeholder="Contoh: 2500"
+                    value={adminFee}
+                    onChange={(e) => setAdminFee(e.target.value)}
+                    className="w-full rounded-xl bg-white border border-[#e2e8f0] pl-10 pr-3.5 py-2.5 text-[#0f172a] font-mono placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 focus:border-[#004ac6] transition-shadow text-sm"
+                  />
+                </div>
+                <p className="text-[11px] text-[#64748b] mt-1">
+                  Biaya admin akan otomatis dicatat sebagai pengeluaran terpisah di dompet asal.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">
+                  Catatan / Keterangan (Opsional)
+                </label>
                 <input
                   type="text"
-                  placeholder="Kategori baru (cth: Hewan Peliharaan)"
-                  value={customCategory}
-                  onChange={(e) => setCustomCategory(e.target.value)}
-                  autoFocus
-                  required
-                  className="w-full rounded-xl bg-white border border-[#004ac6] px-3.5 py-2.5 text-[#0f172a] placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 transition-shadow text-sm"
+                  placeholder="Contoh: Topup GoPay bulanan"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  className="w-full rounded-xl bg-white border border-[#e2e8f0] px-3.5 py-2.5 text-[#0f172a] placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 focus:border-[#004ac6] transition-shadow text-sm"
                 />
-              ) : (
-                <select
-                  value={category}
-                  onChange={(e) => {
-                    if (e.target.value === '__CUSTOM__') {
-                      setIsCustomCategory(true);
-                      setCustomCategory('');
-                    } else {
-                      setCategory(e.target.value);
-                    }
-                  }}
-                  className="w-full rounded-xl bg-white border border-[#e2e8f0] px-3.5 py-2.5 text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 focus:border-[#004ac6] transition-shadow text-sm"
-                >
-                  {CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                  <option value="__CUSTOM__">✍️ + Tulis Kategori Sendiri...</option>
-                </select>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">
-                Dompet Sumber
-              </label>
-              <select
-                value={walletId}
-                onChange={(e) => setWalletId(e.target.value)}
-                className="w-full rounded-xl bg-white border border-[#e2e8f0] px-3.5 py-2.5 text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 focus:border-[#004ac6] transition-shadow text-sm"
-              >
-                {wallets.map((w) => (
-                  <option key={w.id} value={w.id}>
-                    {w.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">
-              Lokasi / Tempat (Opsional)
-            </label>
-            <input
-              type="text"
-              placeholder="Contoh: SCBD Mall / Tokopedia"
-              value={locationName}
-              onChange={(e) => setLocationName(e.target.value)}
-              className="w-full rounded-xl bg-white border border-[#e2e8f0] px-3.5 py-2.5 text-[#0f172a] placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 focus:border-[#004ac6] transition-shadow text-sm"
-            />
-          </div>
-
-          {/* Opsi Nitip Teman */}
-          <div className="rounded-xl bg-white p-4 border border-[#e2e8f0] shadow-sm space-y-3">
-            <label className="flex items-center gap-2 cursor-pointer group">
-              <input
-                type="checkbox"
-                checked={isFriendOrder}
-                onChange={(e) => setIsFriendOrder(e.target.checked)}
-                className="w-4 h-4 rounded text-[#004ac6] border-[#cbd5e1] focus:ring-[#004ac6]"
-              />
-              <div className="flex items-center gap-1.5 text-sm font-bold text-[#64748b] group-hover:text-[#0f172a] transition-colors">
-                <UserCheck className="h-4 w-4" />
-                <span>Opsi &quot;Nitip Teman&quot;</span>
               </div>
-            </label>
-
-            {isFriendOrder && (
-              <div className="pl-6">
+            </>
+          ) : (
+            /* STANDARD IN / OUT FORM VIEW */
+            <>
+              <div>
+                <label className="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">
+                  Judul / Nama Transaksi
+                </label>
                 <input
                   type="text"
-                  placeholder="Nama teman yang menitip..."
-                  value={friendName}
-                  onChange={(e) => setFriendName(e.target.value)}
-                  className="w-full rounded-xl bg-[#f8fafc] border border-[#e2e8f0] px-3.5 py-2 text-sm text-[#0f172a] placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 focus:border-[#004ac6] transition-shadow"
+                  placeholder="Contoh: Makan Malam Resto & Cafe"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full rounded-xl bg-white border border-[#e2e8f0] px-3.5 py-2.5 text-[#0f172a] placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 focus:border-[#004ac6] transition-shadow text-sm"
                 />
               </div>
-            )}
-          </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">
+                  Total Nominal (IDR)
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-2.5 text-[#64748b] font-mono text-sm">Rp</span>
+                  <input
+                    type="number"
+                    placeholder="Contoh: 150000"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    className="w-full rounded-xl bg-white border border-[#e2e8f0] pl-10 pr-3.5 py-2.5 text-[#0f172a] font-mono placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 focus:border-[#004ac6] transition-shadow text-sm"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-xs font-semibold text-[#64748b] uppercase tracking-wider">
+                      Kategori
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsCustomCategory(!isCustomCategory);
+                        if (!isCustomCategory) {
+                          setCustomCategory('');
+                        }
+                      }}
+                      className="text-[10px] font-bold text-[#004ac6] hover:underline"
+                    >
+                      {isCustomCategory ? 'Pilih Preset' : '+ Tulis Sendiri'}
+                    </button>
+                  </div>
+
+                  {isCustomCategory ? (
+                    <input
+                      type="text"
+                      placeholder="Kategori baru (cth: Hewan Peliharaan)"
+                      value={customCategory}
+                      onChange={(e) => setCustomCategory(e.target.value)}
+                      autoFocus
+                      required
+                      className="w-full rounded-xl bg-white border border-[#004ac6] px-3.5 py-2.5 text-[#0f172a] placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 transition-shadow text-sm"
+                    />
+                  ) : (
+                    <select
+                      value={category}
+                      onChange={(e) => {
+                        if (e.target.value === '__CUSTOM__') {
+                          setIsCustomCategory(true);
+                          setCustomCategory('');
+                        } else {
+                          setCategory(e.target.value);
+                        }
+                      }}
+                      className="w-full rounded-xl bg-white border border-[#e2e8f0] px-3.5 py-2.5 text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 focus:border-[#004ac6] transition-shadow text-sm"
+                    >
+                      {CATEGORIES.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                      <option value="__CUSTOM__">+ Tulis Kategori Sendiri...</option>
+                    </select>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">
+                    Dompet Sumber
+                  </label>
+                  <select
+                    value={walletId}
+                    onChange={(e) => setWalletId(e.target.value)}
+                    className="w-full rounded-xl bg-white border border-[#e2e8f0] px-3.5 py-2.5 text-[#0f172a] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 focus:border-[#004ac6] transition-shadow text-sm"
+                  >
+                    {wallets.map((w) => (
+                      <option key={w.id} value={w.id}>
+                        {w.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#64748b] uppercase tracking-wider mb-2">
+                  Lokasi / Tempat (Opsional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="Contoh: SCBD Mall / Tokopedia"
+                  value={locationName}
+                  onChange={(e) => setLocationName(e.target.value)}
+                  className="w-full rounded-xl bg-white border border-[#e2e8f0] px-3.5 py-2.5 text-[#0f172a] placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 focus:border-[#004ac6] transition-shadow text-sm"
+                />
+              </div>
+
+              {/* Opsi Nitip Teman */}
+              <div className="rounded-xl bg-white p-4 border border-[#e2e8f0] shadow-sm space-y-3">
+                <label className="flex items-center gap-2 cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    checked={isFriendOrder}
+                    onChange={(e) => setIsFriendOrder(e.target.checked)}
+                    className="w-4 h-4 rounded text-[#004ac6] border-[#cbd5e1] focus:ring-[#004ac6]"
+                  />
+                  <div className="flex items-center gap-1.5 text-sm font-bold text-[#64748b] group-hover:text-[#0f172a] transition-colors">
+                    <UserCheck className="h-4 w-4" />
+                    <span>Opsi &quot;Nitip Teman&quot;</span>
+                  </div>
+                </label>
+
+                {isFriendOrder && (
+                  <div className="pl-6">
+                    <input
+                      type="text"
+                      placeholder="Nama teman yang menitip..."
+                      value={friendName}
+                      onChange={(e) => setFriendName(e.target.value)}
+                      className="w-full rounded-xl bg-[#f8fafc] border border-[#e2e8f0] px-3.5 py-2 text-sm text-[#0f172a] placeholder-[#94a3b8] focus:outline-none focus:ring-2 focus:ring-[#004ac6]/20 focus:border-[#004ac6] transition-shadow"
+                    />
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </form>
 
         <div className="p-5 border-t border-[#f1f5f9] bg-white flex items-center justify-end gap-3">
@@ -405,6 +575,8 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
           >
             {transactionToEdit ? (
               <Check className="h-4 w-4" />
+            ) : type === 'TRANSFER' ? (
+              <ArrowRightLeft className="h-4 w-4" />
             ) : (
               <Plus className="h-4 w-4" />
             )}
@@ -413,6 +585,8 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
                 ? 'Menyimpan...'
                 : transactionToEdit
                 ? 'Simpan Perubahan'
+                : type === 'TRANSFER'
+                ? 'Proses Transfer'
                 : 'Simpan Transaksi'}
             </span>
           </button>
@@ -421,3 +595,4 @@ export const AddTransactionModal: React.FC<AddTransactionModalProps> = ({
     </div>
   );
 };
+

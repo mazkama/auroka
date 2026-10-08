@@ -31,13 +31,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAddModal }) => {
 
       <div className="flex items-center gap-4">
         <div className="hidden lg:flex items-center gap-2 rounded-lg bg-slate-800/80 px-3 py-1.5 text-xs text-slate-300 border border-slate-700/50">
-          <ShieldCheck className="h-4 w-4 text-indigo-400" />
-          <span>Ledger System Active</span>
-        </div>
-
-        <div className="flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-400 border border-emerald-500/20">
-          <Database className="h-3.5 w-3.5" />
-          <span>Mock Repository</span>
+          <ShieldCheck className="h-4 w-4 text-emerald-400" />
+          <span>Keamanan Terjamin</span>
         </div>
 
         <button

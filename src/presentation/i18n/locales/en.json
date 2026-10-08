@@ -1,0 +1,101 @@
+{
+  "common": {
+    "appName": "Auroka",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "back": "Back",
+    "loading": "Loading...",
+    "search": "Search...",
+    "filter": "Filter",
+    "all": "All",
+    "actions": "Actions",
+    "status": "Status",
+    "total": "Total",
+    "confirm": "Confirm",
+    "success": "Success",
+    "error": "An error occurred",
+    "empty": "No data available"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "transactions": "Transactions",
+    "wallets": "Wallets & Accounts",
+    "bills": "Bills & Subscriptions",
+    "debts": "Split Bill & Debts",
+    "budgets": "Budgets",
+    "analytics": "Analytics & Reports",
+    "profile": "My Profile",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "header": {
+    "recordTransaction": "Record Transaction",
+    "notifications": "Notifications",
+    "viewAllNotifications": "View All Notification History",
+    "myProfile": "My Profile",
+    "settings": "Settings",
+    "logout": "Log Out"
+  },
+  "profile": {
+    "title": "User Profile",
+    "subtitle": "Manage your personal details, profile picture, and account preferences.",
+    "fullName": "Full Name",
+    "email": "Email Address",
+    "phone": "Phone Number / WhatsApp",
+    "bio": "Bio / Note",
+    "currency": "Primary Currency",
+    "language": "App Language",
+    "saveChanges": "Save Changes",
+    "changePhoto": "Change Photo",
+    "verified": "Verified",
+    "security": "Security & Password",
+    "oldPassword": "Old Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "updatePassword": "Update Password"
+  },
+  "transactions": {
+    "title": "Transaction History",
+    "subtitle": "Track and manage all your cash inflows, outflows, and transfers.",
+    "add": "Record New Transaction",
+    "typeIncome": "Income",
+    "typeExpense": "Expense",
+    "typeTransfer": "Transfer",
+    "amount": "Amount",
+    "wallet": "Source Wallet",
+    "category": "Category",
+    "date": "Transaction Date",
+    "notes": "Notes / Description",
+    "emptyTitle": "No Transactions Yet",
+    "emptyDesc": "Start recording your first transaction to accurately track your cash flow."
+  },
+  "wallets": {
+    "title": "Wallets & Accounts",
+    "subtitle": "Manage all your bank accounts, e-wallets, and cash pools.",
+    "add": "Add New Wallet",
+    "totalBalance": "Total Net Balance",
+    "emptyTitle": "No Wallets Yet",
+    "emptyDesc": "Add your first wallet account or bank card."
+  },
+  "bills": {
+    "title": "Bills & Subscriptions",
+    "subtitle": "Keep track of upcoming regular bills and recurring subscriptions.",
+    "add": "Add Bill",
+    "pay": "Pay Now",
+    "paid": "Paid",
+    "unpaid": "Unpaid",
+    "emptyTitle": "No Active Bills",
+    "emptyDesc": "All recurring bills are paid or none have been added yet."
+  },
+  "debts": {
+    "title": "Split Bill & Debts",
+    "subtitle": "Manage shared expenses and track money owed by friends easily.",
+    "totalReceivable": "Total Receivable",
+    "markSettled": "Mark as Settled",
+    "emptyTitle": "No Pending Debts",
+    "emptyDesc": "There are no pending shared expenses from friends."
+  }
+}

@@ -17,6 +17,7 @@ import {
   Edit2,
   Trash2,
   ArrowRight,
+  Receipt,
 } from 'lucide-react';
 
 interface RecentTransactionsProps {
@@ -96,13 +97,13 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
           <div className="flex items-center gap-2">
             <h2 className="text-lg font-bold text-[#0f172a]">Histori Transaksi Terakhir</h2>
             <span className="text-[10px] font-bold bg-[#004ac6]/10 text-[#004ac6] border border-[#004ac6]/20 px-2 py-0.5 rounded-full">
-              {showManageLink ? 'Ringkasan' : 'Header-Detail ERD'}
+              {showManageLink ? 'Terbaru' : 'Rincian Lengkap'}
             </span>
           </div>
           <p className="text-xs text-[#64748b]">
             {showManageLink
-              ? 'Daftar transaksi terbaru di buku besar Anda'
-              : 'Jejak audit otomatis dengan rincian item, opsi Nitip Teman, dan Worthiness Rating'}
+              ? 'Daftar transaksi terbaru di akun Anda'
+              : 'Riwayat transaksi dengan rincian per item, titipan teman, dan rating kepuasan belanja'}
           </p>
         </div>
 
@@ -132,8 +133,16 @@ export const RecentTransactions: React.FC<RecentTransactionsProps> = ({
       {/* Transaction Items List */}
       <div className="space-y-3">
         {displayedTransactions.length === 0 ? (
-          <div className="py-8 text-center text-[#64748b] text-xs">
-            Tidak ada transaksi yang ditemukan.
+          <div className="py-10 text-center bg-[#f8fafc] rounded-2xl border border-dashed border-[#cbd5e1] p-6 space-y-2">
+            <div className="mx-auto w-10 h-10 rounded-xl bg-[#eff4ff] text-[#004ac6] flex items-center justify-center">
+              <Receipt className="h-5 w-5" />
+            </div>
+            <h4 className="text-xs font-bold text-[#0f172a]">Belum Ada Riwayat Transaksi</h4>
+            <p className="text-[11px] text-[#64748b] max-w-sm mx-auto">
+              {searchTerm
+                ? `Tidak ada transaksi yang cocok dengan kata kunci "${searchTerm}".`
+                : 'Mulai catat pemasukan atau pengeluaran harian Anda untuk melacak arus kas.'}
+            </p>
           </div>
         ) : (
           displayedTransactions.map((tx) => {

@@ -10,19 +10,37 @@
 !.yarn/releases
 !.yarn/versions
 
-# testing
+# testing & coverage
 /coverage
+*.out
+coverage.txt
 
 # next.js
 /.next/
 /out/
 
-# production
+# production & builds
 /build
+/dist
+/bin
+
+# Go binaries & compilation outputs
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+backend/app
+backend/server
+backend/main
 
 # misc
 .DS_Store
 *.pem
+*.key
+*.crt
+*.p12
+*.pfx
 
 # debug
 npm-debug.log*
@@ -30,12 +48,21 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files
+# env files (allow example templates)
 .env
+.env.*
+!.env.example
+!backend/.env.example
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+
+# database & local stores
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
 
 # vercel
 .vercel

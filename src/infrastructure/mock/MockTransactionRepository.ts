@@ -1,5 +1,5 @@
 import { ITransactionRepository } from '@/domain/repositories/ITransactionRepository';
-import { Transaction, CreateTransactionDTO, UpdateTransactionDTO } from '@/domain/entities/transaction';
+import { Transaction, CreateTransactionDTO, UpdateTransactionDTO, TransferDTO } from '@/domain/entities/transaction';
 import { FinancialSummary } from '@/domain/entities/summary';
 import { INITIAL_TRANSACTIONS, INITIAL_WALLETS, CURRENT_USER_ID } from './mockData';
 
@@ -88,6 +88,100 @@ export class MockTransactionRepository implements ITransactionRepository {
       throw new Error(`Transaction with ID ${id} not found`);
     }
     this.transactions.splice(index, 1);
+  }
+
+  async transferFunds(dto: TransferDTO): Promise<{ sourceTransactionId: string; destTransactionId: string; amount: number; adminFee?: number }> {
+    await new Promise((res) => setTimeout(res, 200));
+
+    const sourceWallet = INITIAL_WALLETS.find((w) => w.id === dto.sourceWalletId);
+    const destWallet = INITIAL_WALLETS.find((w) => w.id === dto.destWalletId);
+    const date = dto.transactionDate || new Date().toISOString().split('T')[0];
+
+    const sourceTxId = `t-tf-out-${Date.now()}`;
+    const destTxId = `t-tf-in-${Date.now()}`;
+
+    const sourceTx: Transaction = {
+      id: sourceTxId,
+      userId: CURRENT_USER_ID,
+      walletId: dto.sourceWalletId,
+      walletName: sourceWallet ? sourceWallet.name : 'Unknown Wallet',
+      type: 'TRANSFER',
+      totalAmount: dto.amount,
+      transactionDate: date,
+      title: `Transfer ke ${destWallet ? destWallet.name : 'Dompet'}`,
+      note: dto.note,
+      items: [
+        {
+          id: `ti-${sourceTxId}-1`,
+          transactionId: sourceTxId,
+          itemName: 'Transfer Keluar',
+          categoryId: 'cat-transfer',
+          categoryName: 'Lainnya',
+          amount: dto.amount,
+          rating: 5,
+        },
+      ],
+    };
+
+    const destTx: Transaction = {
+      id: destTxId,
+      userId: CURRENT_USER_ID,
+      walletId: dto.destWalletId,
+      walletName: destWallet ? destWallet.name : 'Unknown Wallet',
+      type: 'TRANSFER',
+      totalAmount: dto.amount,
+      transactionDate: date,
+      title: `Transfer dari ${sourceWallet ? sourceWallet.name : 'Dompet'}`,
+      note: dto.note,
+      items: [
+        {
+          id: `ti-${destTxId}-1`,
+          transactionId: destTxId,
+          itemName: 'Transfer Masuk',
+          categoryId: 'cat-transfer',
+          categoryName: 'Lainnya',
+          amount: dto.amount,
+          rating: 5,
+        },
+      ],
+    };
+
+    this.transactions.unshift(destTx);
+    this.transactions.unshift(sourceTx);
+
+    if (dto.adminFee && dto.adminFee > 0) {
+      const feeTxId = `t-tf-fee-${Date.now()}`;
+      const feeTx: Transaction = {
+        id: feeTxId,
+        userId: CURRENT_USER_ID,
+        walletId: dto.sourceWalletId,
+        walletName: sourceWallet ? sourceWallet.name : 'Unknown Wallet',
+        type: 'OUT',
+        totalAmount: dto.adminFee,
+        transactionDate: date,
+        title: 'Biaya Admin Transfer',
+        note: `Biaya admin transfer ke ${destWallet ? destWallet.name : 'Dompet'}`,
+        items: [
+          {
+            id: `ti-${feeTxId}-1`,
+            transactionId: feeTxId,
+            itemName: 'Biaya Admin Transfer',
+            categoryId: 'cat-fee',
+            categoryName: 'Biaya & Tagihan',
+            amount: dto.adminFee,
+            rating: 5,
+          },
+        ],
+      };
+      this.transactions.unshift(feeTx);
+    }
+
+    return {
+      sourceTransactionId: sourceTxId,
+      destTransactionId: destTxId,
+      amount: dto.amount,
+      adminFee: dto.adminFee,
+    };
   }
 
   async getFinancialSummary(): Promise<FinancialSummary> {

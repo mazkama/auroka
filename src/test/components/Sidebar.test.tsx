@@ -14,6 +14,8 @@ describe('Sidebar Component', () => {
     expect(screen.getAllByText('Dashboard').length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText('Histori Transaksi').length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText('Dompet Digital').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Tagihan & Langganan').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText('Titipan Teman').length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText('Analisis & Laporan').length).toBeGreaterThanOrEqual(1);
   });
 

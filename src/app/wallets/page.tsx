@@ -9,8 +9,9 @@ import { BudgetAllocationChart } from '@/presentation/components/features/Budget
 import { BudgetProgress } from '@/presentation/components/features/BudgetProgress';
 import { AddTransactionModal } from '@/presentation/components/features/AddTransactionModal';
 import { WalletModal } from '@/presentation/components/features/WalletModal';
-import { ConfirmModal } from '@/presentation/components/ui/ConfirmModal';
+import { ConfirmModal, PageHeader, Button } from '@/presentation/components/ui';
 import { Wallet } from '@/domain/entities/wallet';
+import { useTranslation } from '@/presentation/i18n/I18nContext';
 import {
   Wallet as WalletIcon,
   PieChart as PieIcon,
@@ -21,11 +22,13 @@ import {
 } from 'lucide-react';
 
 export default function WalletsPage() {
+  const { t } = useTranslation();
   const {
     summary,
     wallets,
     budgets,
     addTransaction,
+    transferFunds,
     addWallet,
     editWallet,
     removeWallet,
@@ -64,19 +67,27 @@ export default function WalletsPage() {
     };
   }, []);
 
-  const monthlyIncome = summary?.monthlyIncome || 18500000;
+  const monthlyIncome = summary?.monthlyIncome || 0;
   const totalBalance = summary?.totalBalance || wallets.reduce((acc, w) => acc + w.balance, 0);
   const totalBudgeted = budgets.reduce((acc, b) => acc + b.limitAmount, 0);
-  const totalSpent = budgets.reduce((acc, b) => acc + b.spentAmount, 0);
+  const totalSpentInBudgets = budgets.reduce((acc, b) => acc + b.spentAmount, 0);
+  const budgetUtilization = totalBudgeted > 0 ? Math.round((totalSpentInBudgets / totalBudgeted) * 100) : 0;
 
-  const handleEditWallet = (wallet: Wallet) => {
+  const handleOpenAddWallet = () => {
+    setWalletToEdit(null);
+    setIsWalletModalOpen(true);
+  };
+
+  const handleOpenEditWallet = (wallet: Wallet) => {
     setWalletToEdit(wallet);
     setIsWalletModalOpen(true);
   };
 
-  const handleAddWallet = () => {
-    setWalletToEdit(null);
-    setIsWalletModalOpen(true);
+  const handleDeleteWalletRequest = (id: string) => {
+    const target = wallets.find((w) => w.id === id);
+    if (target) {
+      setWalletToDelete(target);
+    }
   };
 
   const handleSaveWallet = async (walletData: Partial<Wallet>) => {
@@ -87,121 +98,139 @@ export default function WalletsPage() {
     }
   };
 
-  const handleDeleteWallet = (id: string) => {
-    const target = wallets.find((w) => w.id === id);
-    if (target) {
-      setWalletToDelete(target);
-    }
-  };
-
   return (
     <AppLayout onOpenAddModal={() => setIsTransactionModalOpen(true)}>
-      <div className="space-y-6">
-        {/* Top Header Banner with Stats */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-white border border-[#e2e8f0] rounded-2xl p-5 shadow-sm">
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-xl sm:text-2xl font-extrabold text-[#0b1c30] tracking-tight">
-                Dompet Digital & Anggaran
-              </h1>
-              <span className="text-[10px] font-bold uppercase tracking-wider bg-[#004ac6]/10 text-[#004ac6] px-2.5 py-0.5 rounded-full border border-[#004ac6]/20">
-                Pusat Rekening
-              </span>
+      <div className="space-y-8">
+        {/* Top Header Banner */}
+        <PageHeader
+          title={t('wallets.title')}
+          subtitle={t('wallets.subtitle')}
+          icon={WalletIcon}
+          actions={
+            <Button
+              variant="primary"
+              size="md"
+              leftIcon={<Plus className="h-4 w-4" />}
+              onClick={handleOpenAddWallet}
+            >
+              {t('wallets.add')}
+            </Button>
+          }
+        />
+
+        {/* Top Metrics Cards Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="bg-white border border-[#e2e8f0] rounded-2xl p-5 shadow-xs flex items-center justify-between">
+            <div className="space-y-1">
+              <span className="text-xs font-bold text-[#64748b]">Total Saldo Semua Akun</span>
+              <h3 className="text-xl sm:text-2xl font-black text-[#0b1c30] tracking-tight font-mono">
+                {formatRupiah(totalBalance)}
+              </h3>
+              <p className="text-[11px] text-[#004ac6] font-semibold flex items-center gap-1">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                <span>{wallets.length} Akun & Rekening Aktif</span>
+              </p>
             </div>
-            <p className="text-xs text-[#434655] mt-1">
-              Kelola seluruh rekening dompet, uang tunai, dan batas alokasi anggaran bulanan secara terpadu.
-            </p>
+            <div className="w-12 h-12 rounded-2xl bg-[#eff4ff] text-[#004ac6] flex items-center justify-center shrink-0">
+              <Coins className="h-6 w-6" />
+            </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5">
-            {/* Quick Stat Pill 1: Total Saldo */}
-            <div className="flex items-center gap-2 bg-[#f8fafc] border border-[#e2e8f0] px-3.5 py-2 rounded-xl text-xs">
-              <WalletIcon className="h-4 w-4 text-[#004ac6]" />
-              <div>
-                <span className="text-[#64748b] block text-[10px] font-medium leading-none">Total Saldo</span>
-                <span className="font-bold font-mono text-[#0b1c30] text-sm">
-                  {formatRupiah(totalBalance)}
-                </span>
-              </div>
+          <div className="bg-white border border-[#e2e8f0] rounded-2xl p-5 shadow-xs flex items-center justify-between">
+            <div className="space-y-1">
+              <span className="text-xs font-bold text-[#64748b]">Total Batas Anggaran</span>
+              <h3 className="text-xl sm:text-2xl font-black text-[#006c49] tracking-tight font-mono">
+                {formatRupiah(totalBudgeted)}
+              </h3>
+              <p className="text-[11px] text-[#64748b]">
+                {budgets.length} Kategori Anggaran Aktif
+              </p>
             </div>
-
-            {/* Quick Stat Pill 2: Total Anggaran */}
-            <div className="flex items-center gap-2 bg-[#f8fafc] border border-[#e2e8f0] px-3.5 py-2 rounded-xl text-xs">
-              <PieIcon className="h-4 w-4 text-[#006c49]" />
-              <div>
-                <span className="text-[#64748b] block text-[10px] font-medium leading-none">Limit Anggaran</span>
-                <span className="font-bold font-mono text-[#006c49] text-sm">
-                  {formatRupiah(totalBudgeted)}
-                </span>
-              </div>
+            <div className="w-12 h-12 rounded-2xl bg-[#006c49]/10 text-[#006c49] flex items-center justify-center shrink-0">
+              <PieIcon className="h-6 w-6" />
             </div>
+          </div>
 
-            {/* Action Button: Tambah Dompet */}
-            <button
-              onClick={handleAddWallet}
-              className="flex items-center gap-1.5 bg-[#004ac6] hover:bg-[#2563eb] text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow-md shadow-[#004ac6]/20 transition-all ml-auto lg:ml-0"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              <span>Tambah Dompet</span>
-            </button>
+          <div className="bg-white border border-[#e2e8f0] rounded-2xl p-5 shadow-xs flex items-center justify-between">
+            <div className="space-y-1">
+              <span className="text-xs font-bold text-[#64748b]">Penggunaan Budget</span>
+              <h3 className="text-xl sm:text-2xl font-black text-[#0b1c30] tracking-tight font-mono">
+                {budgetUtilization}%
+              </h3>
+              <p className="text-[11px] text-[#ba1a1a] font-semibold flex items-center gap-1">
+                <TrendingDown className="h-3.5 w-3.5" />
+                <span>{formatRupiah(totalSpentInBudgets)} terpakai</span>
+              </p>
+            </div>
+            <div className="w-12 h-12 rounded-2xl bg-[#eff4ff] text-[#004ac6] flex items-center justify-center shrink-0">
+              <TrendingDown className="h-6 w-6" />
+            </div>
           </div>
         </div>
 
         {/* Section 1: Dompet Digital & Rekening Bank */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <div className="flex items-center gap-2">
-              <Coins className="h-4 w-4 text-[#004ac6]" />
-              <h2 className="text-base font-bold text-[#0f172a]">Daftar Rekening & Dompet ({wallets.length})</h2>
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg sm:text-xl font-extrabold text-[#0b1c30] tracking-tight">
+                Daftar Rekening & Dompet
+              </h2>
+              <p className="text-xs text-[#434655] mt-0.5">
+                Pilih atau kelola saldo awal rekening Anda untuk akurasi arus kas.
+              </p>
             </div>
-            <span className="text-xs text-[#64748b]">The Ledger System</span>
           </div>
 
           <WalletCards
             wallets={wallets}
-            onEdit={handleEditWallet}
-            onDelete={handleDeleteWallet}
+            onEdit={handleOpenEditWallet}
+            onDelete={handleDeleteWalletRequest}
           />
-        </div>
+        </section>
 
-        {/* Section 2: Alokasi & Pengawasan Anggaran Bulanan */}
-        <div id="anggaran-bulanan" className="space-y-4 pt-2 scroll-mt-24">
-          <div className="flex items-center justify-between px-1">
-            <div className="flex items-center gap-2">
-              <PieIcon className="h-4 w-4 text-[#004ac6]" />
-              <h2 className="text-base font-bold text-[#0f172a]">Alokasi & Pengawasan Anggaran Bulanan</h2>
+        {/* Section 2: Budget Allocation & Tracking */}
+        <section
+          id="anggaran-bulanan"
+          className={`space-y-6 pt-4 border-t border-[#c3c6d7]/30 transition-all duration-700 rounded-2xl p-2 ${
+            highlightBudget ? 'ring-4 ring-[#004ac6]/30 bg-[#eff4ff]/40' : ''
+          }`}
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <div className="flex items-center gap-2">
+                <PieIcon className="h-5 w-5 text-[#004ac6]" />
+                <h2 className="text-lg sm:text-xl font-extrabold text-[#0b1c30] tracking-tight">
+                  Alokasi Anggaran Bulanan
+                </h2>
+              </div>
+              <p className="text-xs text-[#434655] mt-0.5">
+                Pastikan seluruh porsi pengeluaran Anda terkontrol dan tidak melebihi batas yang direncanakan.
+              </p>
             </div>
-            <span className="text-[10px] font-bold bg-[#006c49]/10 text-[#006c49] border border-[#006c49]/20 px-2 py-0.5 rounded-full">
-              Bulan Berjalan
-            </span>
           </div>
 
-          {/* Donut Chart Visualizing 100% Monthly Income Breakdown */}
-          <BudgetAllocationChart budgets={budgets} monthlyIncome={monthlyIncome} />
+          {/* Visualization & Detail Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
+            <div className="lg:col-span-1 h-full">
+              <BudgetAllocationChart
+                budgets={budgets}
+                monthlyIncome={monthlyIncome}
+              />
+            </div>
 
-          {/* Detailed Category Progress Bars & Full CRUD Controls */}
-          <div
-            className={`transition-all duration-700 rounded-2xl ${
-              highlightBudget ? 'ring-4 ring-[#004ac6]/40 shadow-xl scale-[1.005]' : ''
-            }`}
-          >
-            <BudgetProgress
-              budgets={budgets}
-              onAddBudget={addBudget}
-              onEditBudget={editBudget}
-              onDeleteBudget={removeBudget}
-            />
+            <div className="lg:col-span-2 h-full">
+              <BudgetProgress
+                budgets={budgets}
+                onAddBudget={addBudget}
+                onEditBudget={editBudget}
+                onDeleteBudget={removeBudget}
+              />
+            </div>
           </div>
-        </div>
+        </section>
       </div>
 
-      <AddTransactionModal
-        isOpen={isTransactionModalOpen}
-        onClose={() => setIsTransactionModalOpen(false)}
-        wallets={wallets}
-        onAddTransaction={addTransaction}
-      />
-
+      {/* Reusable Wallet Create / Edit Modal */}
       <WalletModal
         isOpen={isWalletModalOpen}
         onClose={() => setIsWalletModalOpen(false)}
@@ -209,20 +238,31 @@ export default function WalletsPage() {
         walletToEdit={walletToEdit}
       />
 
-      {/* Animated Delete Confirmation Modal */}
+      {/* Quick Add Transaction Modal */}
+      <AddTransactionModal
+        isOpen={isTransactionModalOpen}
+        onClose={() => setIsTransactionModalOpen(false)}
+        onAddTransaction={addTransaction}
+        onTransferFunds={transferFunds}
+        wallets={wallets}
+      />
+
+      {/* Delete Wallet Confirmation Modal */}
       <ConfirmModal
-        isOpen={walletToDelete !== null}
+        isOpen={!!walletToDelete}
         onClose={() => setWalletToDelete(null)}
-        onConfirm={async () => {
+        onConfirm={() => {
           if (walletToDelete) {
-            await removeWallet(walletToDelete.id);
+            removeWallet(walletToDelete.id);
+            setWalletToDelete(null);
           }
         }}
         title="Hapus Rekening Dompet?"
         itemName={walletToDelete?.name}
-        description="Semua transaksi terkait akan kehilangan referensi ke akun ini jika dihapus. Tindakan ini tidak dapat dibatalkan."
-        confirmText="Hapus Dompet"
+        description={`Anda yakin ingin menghapus rekening "${walletToDelete?.name}"? Transaksi yang terhubung dengan dompet ini tetap tersimpan namun dompet tidak akan muncul lagi di daftar.`}
+        confirmText="Ya, Hapus Dompet"
         cancelText="Batal"
+        variant="danger"
       />
     </AppLayout>
   );

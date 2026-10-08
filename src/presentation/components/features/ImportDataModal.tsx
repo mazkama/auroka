@@ -108,7 +108,7 @@ export const ImportDataModal: React.FC<ImportDataModalProps> = ({
                 Import Transaksi Excel / CSV
               </h3>
               <p className="text-xs text-[#64748b]">
-                Unggah berkas pembukuan untuk diintegrasikan ke Ledger
+                Unggah berkas pembukuan untuk diimpor ke riwayat transaksi
               </p>
             </div>
           </div>
@@ -235,7 +235,7 @@ export const ImportDataModal: React.FC<ImportDataModalProps> = ({
             ) : (
               <>
                 <UploadCloud className="h-4 w-4" />
-                <span>Import ke Ledger</span>
+                <span>Impor Transaksi</span>
               </>
             )}
           </button>

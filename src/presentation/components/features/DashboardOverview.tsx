@@ -24,6 +24,7 @@ export const DashboardOverview: React.FC = () => {
     loading,
     error,
     addTransaction,
+    transferFunds,
   } = useFinance();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -34,7 +35,7 @@ export const DashboardOverview: React.FC = () => {
         <div className="flex flex-col items-center gap-4">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-indigo-500 border-t-transparent"></div>
           <p className="text-sm font-medium text-slate-400">
-            Sinkronisasi data buku besar (Ledger)...
+            Memuat data keuangan...
           </p>
         </div>
       </div>
@@ -63,7 +64,7 @@ export const DashboardOverview: React.FC = () => {
               Ringkasan Keuangan Personal
             </h2>
             <p className="mt-1 text-sm text-slate-400">
-              Sistem Clean Architecture terhubung ke Mock Data Layer. Backend API dapat di-switch dengan mudah.
+              Pantau arus kas, saldo rekening dompet, dan anggaran bulanan Anda secara terpadu.
             </p>
           </div>
         </div>
@@ -126,6 +127,7 @@ export const DashboardOverview: React.FC = () => {
         onClose={() => setIsModalOpen(false)}
         wallets={wallets}
         onAddTransaction={addTransaction}
+        onTransferFunds={transferFunds}
       />
     </div>
   );

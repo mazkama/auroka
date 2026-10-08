@@ -47,8 +47,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           onLogout={handleLogout}
         />
 
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 pb-20 lg:pb-8 max-w-7xl mx-auto w-full">
-          {children}
+        <main className="flex-1 overflow-y-auto w-full">
+          <div className="p-4 sm:p-6 lg:p-8 pb-24 lg:pb-12 max-w-[1600px] 2xl:max-w-[1800px] mx-auto w-full">
+            {children}
+          </div>
         </main>
       </div>
 

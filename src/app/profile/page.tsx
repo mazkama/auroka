@@ -3,33 +3,33 @@
 import React, { useState, useEffect } from 'react';
 import { AppLayout } from '@/presentation/components/layout/AppLayout';
 import { useFinance } from '@/presentation/hooks/useFinance';
-import { AuthUser } from '@/infrastructure/api/authApi';
+import { AuthUser, apiGetMe, apiUpdateProfile } from '@/infrastructure/api/authApi';
 import { AddTransactionModal } from '@/presentation/components/features/AddTransactionModal';
+import { PageHeader, Button, Input, Textarea, Avatar, Badge } from '@/presentation/components/ui';
+import { useTranslation } from '@/presentation/i18n/I18nContext';
 import {
   User,
   Mail,
   Phone,
   Camera,
   ShieldCheck,
-  CheckCircle2,
+  AlertCircle,
   Lock,
   Sparkles,
   Save,
   KeyRound,
-  History,
-  Smartphone,
-  ExternalLink,
 } from 'lucide-react';
 
 export default function ProfilePage() {
-  const { wallets, addTransaction } = useFinance();
+  const { t } = useTranslation();
+  const { wallets, addTransaction, transferFunds } = useFinance();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Profile Form States
   const [user, setUser] = useState<AuthUser | null>(null);
   const [username, setUsername] = useState('Memuat...');
   const [phone, setPhone] = useState('');
-  const [googleEmail, setGoogleEmail] = useState('Memuat...'); // Email
+  const [googleEmail, setGoogleEmail] = useState('Memuat...');
   const [bio, setBio] = useState('');
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
 
@@ -40,101 +40,231 @@ export default function ProfilePage() {
         try {
           const parsedUser = JSON.parse(storedUser);
           setUser(parsedUser);
-          setUsername(parsedUser.name);
-          setGoogleEmail(parsedUser.email);
+          setUsername(parsedUser.name || '');
+          setGoogleEmail(parsedUser.email || '');
+          setPhone(parsedUser.phone || '');
+          setBio(parsedUser.bio || '');
+          if (parsedUser.avatarUrl || parsedUser.avatar_url) {
+            setAvatarPreview(parsedUser.avatarUrl || parsedUser.avatar_url);
+          }
         } catch (e) {
           console.error('Failed to parse user', e);
         }
       }
+
+      // Sync latest data from backend API
+      apiGetMe()
+        .then((fetchedUser) => {
+          if (fetchedUser) {
+            setUser(fetchedUser);
+            setUsername(fetchedUser.name || '');
+            setGoogleEmail(fetchedUser.email || '');
+            setPhone(fetchedUser.phone || '');
+            setBio(fetchedUser.bio || '');
+            if (fetchedUser.avatarUrl) {
+              setAvatarPreview(fetchedUser.avatarUrl);
+            }
+          }
+        })
+        .catch(() => {
+          // Keep offline state
+        });
     }
   }, []);
 
-  const getInitials = (name?: string) => {
-    if (!name || name === 'Memuat...') return 'AU';
-    const names = name.trim().split(' ');
-    if (names.length >= 2) return (names[0][0] + names[1][0]).toUpperCase();
-    return name.slice(0, 2).toUpperCase();
-  };
+  // Password Form States
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
+  // Status & Feedback
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [savingPassword, setSavingPassword] = useState(false);
+  const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
+  const showToast = (text: string, type: 'success' | 'error' = 'success') => {
+    setToastMessage({ text, type });
     setTimeout(() => {
       setToastMessage(null);
     }, 4000);
   };
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       const reader = new FileReader();
-      reader.onload = () => {
-        setAvatarPreview(reader.result as string);
-        showToast('📸 Foto profil berhasil diperbarui.');
+      reader.onload = async () => {
+        const base64Avatar = reader.result as string;
+        
+        // Compress image using client-side canvas
+        const img = document.createElement('img');
+        img.src = base64Avatar;
+        img.onload = async () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 400;
+          const MAX_HEIGHT = 400;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+
+          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+          setAvatarPreview(compressedBase64);
+
+          try {
+            const updated = await apiUpdateProfile({ avatarUrl: compressedBase64 });
+            if (updated && updated.user) {
+              setUser(updated.user);
+            }
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new Event('auroka:profile-updated'));
+            }
+            showToast('Foto profil berhasil diperbarui.', 'success');
+          } catch (err: unknown) {
+            const errMsg = err instanceof Error ? err.message : 'Gagal memperbarui foto profil.';
+            showToast(errMsg, 'error');
+          }
+        };
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSaveChanges = (e: React.FormEvent) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
-      showToast('✅ Perubahan profil berhasil disimpan!');
-    }, 800);
+    setSavingProfile(true);
+    try {
+      const updated = await apiUpdateProfile({
+        name: username,
+        phone,
+        bio,
+      });
+      if (updated && updated.user) {
+        setUser(updated.user);
+      }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('auroka:profile-updated'));
+      }
+      showToast('Perubahan profil berhasil disimpan.', 'success');
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : 'Gagal menyimpan perubahan profil.';
+      showToast(errMsg, 'error');
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError('');
+
+    if (newPassword.length < 6) {
+      setPasswordError('Kata sandi baru minimal 6 karakter.');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Konfirmasi kata sandi tidak cocok.');
+      return;
+    }
+
+    setSavingPassword(true);
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('auroka_token') : null;
+      const res = await fetch('/api/v1/auth/password', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          oldPassword,
+          newPassword,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || 'Gagal memperbarui kata sandi.');
+      }
+
+      showToast('Kata sandi berhasil diperbarui.', 'success');
+      setOldPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : 'Gagal memperbarui kata sandi.';
+      setPasswordError(errMsg);
+      showToast(errMsg, 'error');
+    } finally {
+      setSavingPassword(false);
+    }
   };
 
   return (
     <AppLayout onOpenAddModal={() => setIsModalOpen(true)}>
-      <div className="space-y-6">
-        {/* Toast Feedback */}
+      <div className="space-y-6 max-w-4xl mx-auto">
+        {/* Toast Alert */}
         {toastMessage && (
-          <div className="fixed top-20 right-4 z-50 flex items-center gap-3 bg-[#0b1c30] text-white px-4 py-3 rounded-2xl shadow-2xl border border-white/20 animate-in fade-in slide-in-from-top-4 duration-300">
-            <CheckCircle2 className="h-5 w-5 text-[#6cf8bb] shrink-0" />
-            <span className="text-xs font-semibold">{toastMessage}</span>
+          <div
+            className={`fixed top-20 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-xl text-xs font-semibold animate-in fade-in slide-in-from-top-3 duration-200 border ${
+              toastMessage.type === 'success'
+                ? 'bg-[#0b1c30] text-white border-slate-700'
+                : 'bg-[#ef4444] text-white border-red-400'
+            }`}
+          >
+            {toastMessage.type === 'success' ? (
+              <Sparkles className="h-4 w-4 text-emerald-400 shrink-0" />
+            ) : (
+              <AlertCircle className="h-4 w-4 text-white shrink-0" />
+            )}
+            <span>{toastMessage.text}</span>
           </div>
         )}
 
         {/* Page Header */}
-        <div className="bg-white border border-[#e2e8f0] rounded-2xl p-5 shadow-sm">
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-extrabold text-[#0b1c30] tracking-tight">
-              Profil Saya
-            </h1>
-            <span className="text-[10px] font-bold uppercase tracking-wider bg-[#004ac6]/10 text-[#004ac6] px-2.5 py-0.5 rounded-full border border-[#004ac6]/20">
-              Personal Account
-            </span>
-          </div>
-          <p className="text-xs text-[#434655] mt-1">
-            Kelola data identitas akun, foto profil, dan informasi kontak Anda di Auroka.
-          </p>
-        </div>
+        <PageHeader
+          title={t('profile.title')}
+          subtitle={t('profile.subtitle')}
+          icon={User}
+        />
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Card 1: Avatar & Profile Summary (Mobile: 1st | Desktop: Top Left) */}
-          <div className="order-1 lg:col-span-4 bg-white border border-[#e2e8f0] rounded-2xl p-6 shadow-sm text-center space-y-4">
-            {/* Avatar Uploader */}
-            <div className="relative inline-block mx-auto">
-              <div className="w-28 h-28 rounded-3xl bg-gradient-to-tr from-[#004ac6] to-[#2563eb] text-white flex items-center justify-center font-extrabold text-3xl shadow-xl overflow-hidden ring-4 ring-[#eff4ff]">
-                {avatarPreview ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={avatarPreview}
-                    alt="Avatar"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span>{user ? getInitials(user.name) : 'AU'}</span>
-                )}
-              </div>
+        {/* Profile Card & Avatar Section */}
+        <div className="bg-white border border-[#e2e8f0] rounded-3xl p-6 sm:p-8 shadow-xs relative overflow-hidden">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6 relative z-10">
+            {/* Avatar with Upload Trigger */}
+            <div className="relative group">
+              <Avatar
+                src={avatarPreview}
+                name={username}
+                size="xl"
+                className="shadow-lg ring-4 ring-[#eff4ff]"
+              />
 
-              {/* Upload Button overlay */}
-              <label className="absolute bottom-0 right-0 p-2 rounded-2xl bg-[#004ac6] hover:bg-[#2563eb] text-white shadow-lg cursor-pointer transition-all hover:scale-105 border-2 border-white">
+              <label
+                htmlFor="avatar-upload"
+                className="absolute bottom-0 right-0 bg-[#004ac6] hover:bg-[#2563eb] text-white p-2.5 rounded-full shadow-lg cursor-pointer transition-all hover:scale-105 active:scale-95 border-2 border-white"
+                title="Unggah Foto Profil Baru"
+              >
                 <Camera className="h-4 w-4" />
                 <input
+                  id="avatar-upload"
                   type="file"
                   accept="image/*"
                   onChange={handleAvatarChange}
@@ -143,180 +273,148 @@ export default function ProfilePage() {
               </label>
             </div>
 
-            <div>
-              <h3 className="text-lg font-bold text-[#0b1c30]">{username}</h3>
+            {/* Profile Overview */}
+            <div className="text-center sm:text-left min-w-0 flex-1 space-y-1.5">
+              <div className="flex items-center justify-center sm:justify-start gap-2 flex-wrap">
+                <h2 className="text-xl sm:text-2xl font-extrabold text-[#0b1c30] tracking-tight">
+                  {username}
+                </h2>
+                <Badge variant="success" size="sm" icon={<ShieldCheck className="h-3 w-3" />}>
+                  {t('profile.verified')}
+                </Badge>
+              </div>
               <p className="text-xs text-[#64748b]">{googleEmail}</p>
-            </div>
-
-            <div className="pt-2 border-t border-[#f1f5f9] flex items-center justify-center gap-2">
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#006c49] bg-[#006c49]/10 px-3 py-1 rounded-full">
-                <ShieldCheck className="h-3.5 w-3.5" />
-                Email Verified
-              </span>
+              {bio && (
+                <p className="text-xs text-[#434655] italic bg-[#f8fafc] px-3 py-1.5 rounded-xl border border-[#f1f5f9] mt-2 inline-block">
+                  &ldquo;{bio}&rdquo;
+                </p>
+              )}
             </div>
           </div>
+        </div>
 
-          {/* Card 2: Informasi Data Diri Form (Mobile: 2nd [di atas Keamanan] | Desktop: Right Column) */}
-          <div className="order-2 lg:col-span-8 lg:row-span-2 bg-white border border-[#e2e8f0] rounded-2xl p-6 sm:p-7 shadow-sm space-y-6">
-            <div>
-              <h3 className="text-base font-bold text-[#0f172a]">
-                Informasi Data Diri
-              </h3>
-              <p className="text-xs text-[#64748b] mt-0.5">
-                Perbarui nama pengguna dan nomor telepon kontak Anda.
-              </p>
+        {/* Main Settings Tabs / Form Sections */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Section 1: Informasi Personal */}
+          <div className="bg-white border border-[#e2e8f0] rounded-3xl p-6 shadow-xs space-y-5">
+            <div className="flex items-center gap-2 pb-3 border-b border-[#f1f5f9]">
+              <User className="h-4 w-4 text-[#004ac6]" />
+              <h3 className="font-extrabold text-sm text-[#0b1c30]">Data Personal & Kontak</h3>
             </div>
 
-            <form onSubmit={handleSaveChanges} className="space-y-5">
-              {/* Field 1: Username */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-[#334155]">
-                  Username / Nama Lengkap <span className="text-rose-500">*</span>
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#94a3b8]">
-                    <User className="h-4 w-4" />
-                  </div>
-                  <input
-                    type="text"
-                    required
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Masukkan nama pengguna..."
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#cbd5e1] text-xs font-semibold text-[#0f172a] focus:outline-none focus:border-[#004ac6] focus:ring-2 focus:ring-[#004ac6]/10 transition-all"
-                  />
-                </div>
-                <p className="text-[10px] text-[#64748b]">
-                  Nama ini akan ditampilkan pada header, laporan, dan catatan transaksi.
-                </p>
-              </div>
+            <form onSubmit={handleSaveProfile} className="space-y-4">
+              <Input
+                label={t('profile.fullName')}
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                leftIcon={<User className="h-4 w-4" />}
+                required
+              />
 
-              {/* Field 2: Phone Number */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-[#334155]">
-                  Nomor WhatsApp / Handphone <span className="text-rose-500">*</span>
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#94a3b8]">
-                    <Phone className="h-4 w-4" />
-                  </div>
-                  <input
-                    type="tel"
-                    required
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+62 8xx-xxxx-xxxx"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#cbd5e1] text-xs font-semibold text-[#0f172a] focus:outline-none focus:border-[#004ac6] focus:ring-2 focus:ring-[#004ac6]/10 transition-all font-mono"
-                  />
-                </div>
-                <p className="text-[10px] text-[#64748b]">
-                  Digunakan untuk notifikasi pengingat limit anggaran bulanan dan keamanan.
-                </p>
-              </div>
+              <Input
+                label={t('profile.email')}
+                type="email"
+                value={googleEmail}
+                disabled
+                leftIcon={<Mail className="h-4 w-4" />}
+                helperText="Email terhubung dengan sistem autentikasi."
+              />
 
-              {/* Field 3: Google Gmail (READ ONLY - Tidak bisa diubah) */}
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <label className="block text-xs font-bold text-[#334155]">
-                    Alamat Email Terdaftar
-                  </label>
-                  <span className="inline-flex items-center gap-1 text-[10px] font-bold text-[#64748b] bg-[#f1f5f9] px-2 py-0.5 rounded-md">
-                    <Lock className="h-3 w-3 text-[#94a3b8]" />
-                    Permanen / Tidak dapat diubah
-                  </span>
-                </div>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#94a3b8]">
-                    <Mail className="h-4 w-4 text-[#006c49]" />
-                  </div>
-                  <input
-                    type="email"
-                    disabled
-                    readOnly
-                    value={googleEmail}
-                    className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-[#e2e8f0] bg-[#f8fafc] text-xs font-bold text-[#64748b] cursor-not-allowed select-none font-mono"
-                  />
-                  <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
-                    <ShieldCheck className="h-4 w-4 text-[#006c49]" />
-                  </div>
-                </div>
-                <p className="text-[10px] text-[#64748b]">
-                  Alamat email digunakan untuk autentikasi demi integritas data dan keamanan Ledger.
-                </p>
-              </div>
+              <Input
+                label={t('profile.phone')}
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="cth: +62 812-3456-7890"
+                leftIcon={<Phone className="h-4 w-4" />}
+              />
 
-              {/* Field 4: Bio / Catatan Pribadi */}
-              <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-[#334155]">
-                  Bio Singkat
-                </label>
-                <textarea
-                  rows={2}
-                  value={bio}
-                  onChange={(e) => setBio(e.target.value)}
-                  placeholder="Tuliskan catatan singkat tentang profil Anda..."
-                  className="w-full p-3 rounded-xl border border-[#cbd5e1] text-xs font-semibold text-[#0f172a] focus:outline-none focus:border-[#004ac6] focus:ring-2 focus:ring-[#004ac6]/10 transition-all resize-none"
-                />
-              </div>
+              <Textarea
+                label={t('profile.bio')}
+                value={bio}
+                onChange={(e) => setBio(e.target.value)}
+                placeholder="Tuliskan catatan singkat profil Anda..."
+                rows={3}
+              />
 
-              {/* Submit Button */}
-              <div className="pt-3 border-t border-[#f1f5f9] flex items-center justify-end gap-3">
-                <button
+              <div className="pt-2">
+                <Button
                   type="submit"
-                  disabled={isSaving}
-                  className="flex items-center gap-2 bg-[#004ac6] hover:bg-[#2563eb] text-white px-6 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-[#004ac6]/20"
+                  variant="primary"
+                  size="md"
+                  isLoading={savingProfile}
+                  leftIcon={<Save className="h-4 w-4" />}
+                  className="w-full"
                 >
-                  {isSaving ? (
-                    <>
-                      <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                      <span>Menyimpan...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Save className="h-4 w-4" />
-                      <span>Simpan Perubahan</span>
-                    </>
-                  )}
-                </button>
+                  {t('profile.saveChanges')}
+                </Button>
               </div>
             </form>
           </div>
 
-          {/* Card 3: Account Security Info Card (Mobile: 3rd | Desktop: Bottom Left) */}
-          <div className="order-3 lg:col-span-4 bg-white border border-[#e2e8f0] rounded-2xl p-5 shadow-sm space-y-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-[#94a3b8] flex items-center gap-1.5">
-              <KeyRound className="h-3.5 w-3.5 text-[#004ac6]" />
-              Keamanan & Akses
-            </h4>
-
-            <div className="p-3 rounded-xl bg-[#f8fafc] border border-[#e2e8f0] space-y-1">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-[#0f172a]">Autentikasi Akun</span>
-                <span className="text-[10px] font-bold text-[#006c49]">Aktif</span>
-              </div>
-              <p className="text-[11px] text-[#64748b]">
-                Terkoneksi melalui Autentikasi Email & Password.
-              </p>
+          {/* Section 2: Keamanan & Password */}
+          <div className="bg-white border border-[#e2e8f0] rounded-3xl p-6 shadow-xs space-y-5">
+            <div className="flex items-center gap-2 pb-3 border-b border-[#f1f5f9]">
+              <Lock className="h-4 w-4 text-[#004ac6]" />
+              <h3 className="font-extrabold text-sm text-[#0b1c30]">{t('profile.security')}</h3>
             </div>
 
-            <div className="p-3 rounded-xl bg-[#f8fafc] border border-[#e2e8f0] space-y-1">
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-bold text-[#0f172a]">Sesi Login Terakhir</span>
-                <span className="text-[10px] text-[#64748b]">Hari ini, 10:45</span>
+            <form onSubmit={handleUpdatePassword} className="space-y-4">
+              <Input
+                label={t('profile.oldPassword')}
+                type="password"
+                value={oldPassword}
+                onChange={(e) => setOldPassword(e.target.value)}
+                placeholder="Masukkan kata sandi lama"
+                leftIcon={<KeyRound className="h-4 w-4" />}
+                required
+              />
+
+              <Input
+                label={t('profile.newPassword')}
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Minimal 6 karakter"
+                leftIcon={<Lock className="h-4 w-4" />}
+                required
+              />
+
+              <Input
+                label={t('profile.confirmPassword')}
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Ulangi kata sandi baru"
+                leftIcon={<Lock className="h-4 w-4" />}
+                required
+                error={passwordError}
+              />
+
+              <div className="pt-2">
+                <Button
+                  type="submit"
+                  variant="outline"
+                  size="md"
+                  isLoading={savingPassword}
+                  leftIcon={<KeyRound className="h-4 w-4" />}
+                  className="w-full"
+                >
+                  {t('profile.updatePassword')}
+                </Button>
               </div>
-              <p className="text-[11px] text-[#64748b]">
-                Windows 11 • Chrome Browser • Jakarta, Indonesia
-              </p>
-            </div>
+            </form>
           </div>
         </div>
       </div>
 
+      {/* Quick Add Transaction Modal */}
       <AddTransactionModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        wallets={wallets}
         onAddTransaction={addTransaction}
+        onTransferFunds={transferFunds}
+        wallets={wallets}
       />
     </AppLayout>
   );

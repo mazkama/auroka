@@ -73,4 +73,44 @@ describe('Ledger System Integration Test', () => {
     const balanceAfterDelete = (await walletsUseCase.execute()).find((w) => w.id === wallet.id)?.balance;
     expect(balanceAfterDelete).toBe(startingBalance);
   });
+
+  it('transfers funds between two wallets and adjusts balances and fees correctly', async () => {
+    const walletsUseCase = container.getWalletsUseCase();
+    const wallets = await walletsUseCase.execute();
+    const sourceWallet = wallets[0];
+    const destWallet = wallets[1];
+
+    const sourceInitialBalance = sourceWallet.balance;
+    const destInitialBalance = destWallet.balance;
+
+    const transferUseCase = container.getTransferFundsUseCase();
+    const transferResult = await transferUseCase.execute({
+      sourceWalletId: sourceWallet.id,
+      destWalletId: destWallet.id,
+      amount: 500000,
+      adminFee: 2500,
+      note: 'Transfer test BCA ke Mandiri',
+    });
+
+    expect(transferResult).toBeDefined();
+    expect(transferResult.amount).toBe(500000);
+    expect(transferResult.adminFee).toBe(2500);
+
+    const updatedWallets = await walletsUseCase.execute();
+    const updatedSource = updatedWallets.find((w) => w.id === sourceWallet.id);
+    const updatedDest = updatedWallets.find((w) => w.id === destWallet.id);
+
+    expect(updatedSource?.balance).toBe(sourceInitialBalance - 500000 - 2500);
+    expect(updatedDest?.balance).toBe(destInitialBalance + 500000);
+
+    const transactionsUseCase = container.getTransactionsUseCase();
+    const txs = await transactionsUseCase.execute();
+    const sourceTx = txs.find((t) => t.id === transferResult.sourceTransactionId);
+    const destTx = txs.find((t) => t.id === transferResult.destTransactionId);
+
+    expect(sourceTx).toBeDefined();
+    expect(sourceTx?.type).toBe('TRANSFER');
+    expect(destTx).toBeDefined();
+    expect(destTx?.type).toBe('TRANSFER');
+  });
 });

@@ -33,7 +33,16 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		if userIDVal, ok := claims["user_id"]; ok {
-			c.Set("userID", userIDVal)
+			var uid uint
+			switch v := userIDVal.(type) {
+			case float64:
+				uid = uint(v)
+			case int:
+				uid = uint(v)
+			case uint:
+				uid = v
+			}
+			c.Set("userID", uid)
 		}
 		if emailVal, ok := claims["email"]; ok {
 			c.Set("userEmail", emailVal)
@@ -41,4 +50,26 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+func GetAuthUserID(c *gin.Context) uint {
+	val, exists := c.Get("userID")
+	if !exists {
+		return 0
+	}
+	if uid, ok := val.(uint); ok {
+		return uid
+	}
+	return 0
+}
+
+func GetAuthUserEmail(c *gin.Context) string {
+	val, exists := c.Get("userEmail")
+	if !exists {
+		return ""
+	}
+	if email, ok := val.(string); ok {
+		return email
+	}
+	return ""
 }

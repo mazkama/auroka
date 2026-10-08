@@ -5,17 +5,21 @@ import { AppLayout } from '@/presentation/components/layout/AppLayout';
 import { useFinance } from '@/presentation/hooks/useFinance';
 import { RecentTransactions } from '@/presentation/components/features/RecentTransactions';
 import { AddTransactionModal } from '@/presentation/components/features/AddTransactionModal';
-import { ConfirmModal } from '@/presentation/components/ui/ConfirmModal';
+import { ConfirmModal } from '@/presentation/components/ui';
+import { PageHeader, Button } from '@/presentation/components/ui';
 import { Transaction } from '@/domain/entities/transaction';
+import { useTranslation } from '@/presentation/i18n/I18nContext';
 import { Plus, ReceiptText } from 'lucide-react';
 
 export default function TransactionsPage() {
+  const { t } = useTranslation();
   const {
     transactions,
     wallets,
     addTransaction,
     editTransaction,
     removeTransaction,
+    transferFunds,
   } = useFinance();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -43,30 +47,21 @@ export default function TransactionsPage() {
     <AppLayout onOpenAddModal={handleOpenAdd}>
       <div className="space-y-6">
         {/* Top Header Controls */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-[#e2e8f0] rounded-2xl p-5 shadow-sm">
-          <div>
-            <div className="flex items-center gap-2">
-              <ReceiptText className="h-5 w-5 text-[#004ac6]" />
-              <h1 className="text-xl sm:text-2xl font-extrabold text-[#0b1c30] tracking-tight">
-                Histori & Manajemen Transaksi
-              </h1>
-              <span className="text-[10px] font-bold uppercase tracking-wider bg-[#004ac6]/10 text-[#004ac6] px-2.5 py-0.5 rounded-full border border-[#004ac6]/20">
-                CRUD Aktif
-              </span>
-            </div>
-            <p className="text-xs text-[#434655] mt-1">
-              Kelola, edit, atau hapus transaksi. Saldo dompet akan disesuaikan otomatis mengikuti kaidah buku besar.
-            </p>
-          </div>
-
-          <button
-            onClick={handleOpenAdd}
-            className="flex items-center justify-center gap-2 bg-[#004ac6] hover:bg-[#2563eb] text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-[#004ac6]/20 active:scale-95 cursor-pointer shrink-0"
-          >
-            <Plus className="h-4 w-4" />
-            <span>+ Catat Transaksi</span>
-          </button>
-        </div>
+        <PageHeader
+          title={t('transactions.title')}
+          subtitle={t('transactions.subtitle')}
+          icon={ReceiptText}
+          actions={
+            <Button
+              variant="primary"
+              size="md"
+              leftIcon={<Plus className="h-4 w-4" />}
+              onClick={handleOpenAdd}
+            >
+              {t('transactions.add')}
+            </Button>
+          }
+        />
 
         {/* Transaction History with Edit and Delete capability */}
         <RecentTransactions
@@ -76,35 +71,36 @@ export default function TransactionsPage() {
         />
       </div>
 
-      {/* Add / Edit Transaction Modal */}
+      {/* Reusable Add / Edit Transaction Modal */}
       <AddTransactionModal
         isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setTransactionToEdit(null);
-        }}
-        wallets={wallets}
+        onClose={() => setIsModalOpen(false)}
         onAddTransaction={addTransaction}
-        transactionToEdit={transactionToEdit}
         onEditTransaction={editTransaction}
+        onTransferFunds={transferFunds}
+        wallets={wallets}
+        transactionToEdit={transactionToEdit}
       />
 
-      {/* Animated Delete Confirmation Modal */}
+      {/* Reusable Delete Confirmation Dialog */}
       <ConfirmModal
-        isOpen={transactionToDelete !== null}
+        isOpen={!!transactionToDelete}
         onClose={() => setTransactionToDelete(null)}
-        onConfirm={async () => {
+        onConfirm={() => {
           if (transactionToDelete) {
-            await removeTransaction(transactionToDelete.id);
+            removeTransaction(transactionToDelete.id);
+            setTransactionToDelete(null);
           }
         }}
-        title="Hapus Transaksi?"
+        title="Hapus Transaksi Ini?"
         itemName={transactionToDelete?.title}
-        description="Jejak audit transaksi ini akan dihapus dan saldo rekening dompet terkait akan disesuaikan secara otomatis."
-        confirmText="Hapus Transaksi"
+        description={`Anda yakin ingin menghapus transaksi "${transactionToDelete?.title}" sebesar Rp ${transactionToDelete?.totalAmount?.toLocaleString(
+          'id-ID'
+        )}? Saldo dompet akan disesuaikan kembali secara otomatis.`}
+        confirmText="Ya, Hapus"
         cancelText="Batal"
+        variant="danger"
       />
     </AppLayout>
   );
 }
-

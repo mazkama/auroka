@@ -34,10 +34,24 @@ func ConnectDB() {
 
 	log.Println("Database connection successfully opened")
 
-	// Migrate the schema
-	err = DB.AutoMigrate(&models.User{})
+	// Migrate the schemas
+	err = DB.AutoMigrate(
+		&models.User{},
+		&models.OTP{},
+		&models.Wallet{},
+		&models.Transaction{},
+		&models.TransactionItem{},
+		&models.Budget{},
+		&models.Bill{},
+		&models.Notification{},
+		&models.UserNotificationSettings{},
+		&models.NotificationDeliveryLog{},
+	)
 	if err != nil {
 		log.Fatal("Failed to migrate database:", err)
 	}
 	log.Println("Database migrated successfully")
+
+	// Auto seed demo data if demo user doesn't exist
+	SeedDemoData()
 }

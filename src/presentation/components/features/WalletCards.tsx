@@ -69,7 +69,18 @@ export const WalletCards: React.FC<WalletCardsProps> = ({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {displayedWallets.map((wallet) => {
+        {wallets.length === 0 ? (
+          <div className="col-span-full py-8 text-center bg-[#f8fafc] rounded-2xl border border-dashed border-[#cbd5e1] p-6 space-y-2">
+            <div className="mx-auto w-10 h-10 rounded-xl bg-[#eff4ff] text-[#004ac6] flex items-center justify-center">
+              <CreditCard className="h-5 w-5" />
+            </div>
+            <h4 className="text-xs font-bold text-[#0f172a]">Belum Ada Dompet / Rekening</h4>
+            <p className="text-[11px] text-[#64748b] max-w-sm mx-auto">
+              Hubungkan rekening bank, e-wallet, atau catat uang tunai Anda untuk mulai mengelola saldo kas.
+            </p>
+          </div>
+        ) : (
+          displayedWallets.map((wallet) => {
           const Icon = getWalletIcon(wallet.type);
           return (
             <div
@@ -143,7 +154,8 @@ export const WalletCards: React.FC<WalletCardsProps> = ({
               </div>
             </div>
           );
-        })}
+        })
+        )}
       </div>
     </div>
   );
